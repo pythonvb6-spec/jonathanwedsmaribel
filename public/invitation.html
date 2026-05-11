@@ -69,7 +69,20 @@
     .venue-section{padding:60px 20px;background:var(--secondary)}
     .venue-section+.venue-section{background:#f0efe8}
     .venue-card{max-width:600px;margin:0 auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.1)}
-    .venue-map{width:100%;height:220px;border:none}
+    .venue-carousel{position:relative;width:100%;height:260px;overflow:hidden;cursor:pointer;background:#e8edf2}
+    .venue-carousel-track{display:flex;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1)}
+    .venue-carousel-slide{flex-shrink:0;width:100%;height:100%}
+    .venue-carousel-slide img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none}
+    .venue-carousel-slide .slide-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:rgba(107,142,176,.45);background:linear-gradient(135deg,#eef2f6,#dde6ef)}
+    .venue-carousel-slide .slide-placeholder i{font-size:2.8rem}
+    .venue-carousel-slide .slide-placeholder span{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+    .vc-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.88);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.2);transition:all .25s ease;z-index:2;font-size:.8rem;color:#2c2c2c}
+    .vc-btn:hover{background:#fff;transform:translateY(-50%) scale(1.1);box-shadow:0 4px 16px rgba(0,0,0,.25)}
+    .vc-prev{left:10px}.vc-next{right:10px}
+    .vc-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2}
+    .vc-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5);border:none;cursor:pointer;transition:all .3s ease;padding:0}
+    .vc-dot.active{background:#fff;transform:scale(1.2)}
+    .vc-zoom-hint{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.45);color:#fff;font-size:.65rem;letter-spacing:.08em;padding:4px 10px;border-radius:20px;pointer-events:none;z-index:2;opacity:.85}
     .venue-info{padding:20px}
     .venue-name{font-family:'Cormorant Garamond',serif;font-size:1.3rem;margin-bottom:4px}
     .venue-address{font-size:.82rem;color:var(--mid);margin-bottom:16px}
@@ -417,12 +430,24 @@
       <div class="cd-box"><div class="cd-num" id="cd-mins">00</div><div class="cd-lbl">Mins</div></div>
       <div class="cd-box"><div class="cd-num" id="cd-secs">00</div><div class="cd-lbl">Secs</div></div>
     </div>
-    <p class="cd-date">June 12, 2026 · 3:00 PM · San Isidro Parish</p>
+    <p class="cd-date">May 8, 2026 · 1:30 PM · San Isidro Parish</p>
   </div>
   <div class="venue-section">
     <p class="section-subtitle">Ceremony</p><h2 class="section-title">Venue</h2><div class="divider"></div>
     <div class="venue-card">
-      <iframe class="venue-map" src="https://maps.google.com/maps?q=6.738257259454732,125.35540466861313&z=16&output=embed" allowfullscreen loading="lazy"></iframe>
+      <div class="venue-carousel" id="vc-ceremony" onclick="vcLightbox('vc-ceremony')">
+        <div class="vc-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to zoom</div>
+        <div class="venue-carousel-track" id="vc-ceremony-track">
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony1.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-church\"></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony2.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-church\"></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony3.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-church\"></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony4.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-church\"></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony5.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-church\"></i><span>Ceremony Venue</span></div>'"></div>
+        </div>
+        <button class="vc-btn vc-prev" onclick="event.stopPropagation();vcMove('vc-ceremony',-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="vc-btn vc-next" onclick="event.stopPropagation();vcMove('vc-ceremony',1)"><i class="fa-solid fa-chevron-right"></i></button>
+        <div class="vc-dots" id="vc-ceremony-dots"></div>
+      </div>
       <div class="venue-info">
         <div class="venue-name">San Isidro Labrador Parish</div>
         <div class="venue-address"><i class="fa-solid fa-location-dot" style="color:var(--primary);margin-right:6px"></i>Digos City, Davao del Sur</div>
@@ -433,7 +458,19 @@
   <div class="venue-section" style="background:#f0efe8">
     <p class="section-subtitle">Reception</p><h2 class="section-title">Reception Venue</h2><div class="divider"></div>
     <div class="venue-card">
-      <iframe class="venue-map" src="https://maps.google.com/maps?q=6.740094858887625,125.35520046491142&z=16&output=embed" allowfullscreen loading="lazy"></iframe>
+      <div class="venue-carousel" id="vc-reception" onclick="vcLightbox('vc-reception')">
+        <div class="vc-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to zoom</div>
+        <div class="venue-carousel-track" id="vc-reception-track">
+          <div class="venue-carousel-slide"><img src="images/venue/reception1.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-champagne-glasses\"></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception2.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-champagne-glasses\"></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception3.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-champagne-glasses\"></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception4.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-champagne-glasses\"></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception5.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=\"slide-placeholder\"><i class=\"fa-solid fa-champagne-glasses\"></i><span>Reception Venue</span></div>'"></div>
+        </div>
+        <button class="vc-btn vc-prev" onclick="event.stopPropagation();vcMove('vc-reception',-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="vc-btn vc-next" onclick="event.stopPropagation();vcMove('vc-reception',1)"><i class="fa-solid fa-chevron-right"></i></button>
+        <div class="vc-dots" id="vc-reception-dots"></div>
+      </div>
       <div class="venue-info">
         <div class="venue-name">Laderas Function Hall</div>
         <div class="venue-address"><i class="fa-solid fa-location-dot" style="color:var(--tertiary);margin-right:6px"></i>3rd Floor · Digos City, Davao del Sur</div>
@@ -583,7 +620,7 @@ document.querySelectorAll('#home-section,#entourage-section,#details-section,#rs
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
 function updateCountdown() {
-  const diff = new Date('2026-06-12T11:30:00') - new Date();
+  const diff = new Date('2026-05-08T13:30:00') - new Date();
   if (diff <= 0) return;
   document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
   document.getElementById('cd-hours').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
@@ -737,6 +774,51 @@ function saveQR() {
 
 // Close QR on Escape key
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQR(); });
+
+// ── Venue Carousels ───────────────────────────────────────────────────────────
+const vcState = {};
+
+function vcInit(id, total = 5) {
+  vcState[id] = { idx: 0, total, timer: null };
+  const dotsEl = document.getElementById(id + '-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('button');
+    d.className = 'vc-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Slide ' + (i + 1));
+    d.onclick = (e) => { e.stopPropagation(); vcGo(id, i); };
+    dotsEl.appendChild(d);
+  }
+  vcState[id].timer = setInterval(() => vcMove(id, 1), 3000);
+}
+
+function vcGo(id, idx) {
+  const s = vcState[id];
+  s.idx = (idx + s.total) % s.total;
+  document.getElementById(id + '-track').style.transform = `translateX(-${s.idx * 100}%)`;
+  document.querySelectorAll(`#${id}-dots .vc-dot`).forEach((d, i) => d.classList.toggle('active', i === s.idx));
+}
+
+function vcMove(id, dir) {
+  const s = vcState[id];
+  clearInterval(s.timer);
+  vcGo(id, s.idx + dir);
+  s.timer = setInterval(() => vcMove(id, 1), 3000);
+}
+
+function vcLightbox(id) {
+  const s = vcState[id];
+  const slides = document.querySelectorAll(`#${id} .venue-carousel-slide img`);
+  if (!slides[s.idx]) return;
+  const src = slides[s.idx].src;
+  if (!src || src === window.location.href) return;
+  document.getElementById('viewer-img').src = src;
+  document.getElementById('img-viewer').classList.add('active');
+}
+
+vcInit('vc-ceremony');
+vcInit('vc-reception');
+
 </script>
 </body>
 </html>
