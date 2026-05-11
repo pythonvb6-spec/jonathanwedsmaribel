@@ -417,7 +417,7 @@
       <div class="cd-box"><div class="cd-num" id="cd-mins">00</div><div class="cd-lbl">Mins</div></div>
       <div class="cd-box"><div class="cd-num" id="cd-secs">00</div><div class="cd-lbl">Secs</div></div>
     </div>
-    <p class="cd-date">May 8, 2026 · 1:30 PM · San Isidro Parish</p>
+    <p class="cd-date">June 12, 2026 · 3:00 PM · San Isidro Parish</p>
   </div>
   <div class="venue-section">
     <p class="section-subtitle">Ceremony</p><h2 class="section-title">Venue</h2><div class="divider"></div>
@@ -583,7 +583,7 @@ document.querySelectorAll('#home-section,#entourage-section,#details-section,#rs
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
 function updateCountdown() {
-  const diff = new Date('2026-05-08T13:30:00') - new Date();
+  const diff = new Date('2026-06-12T11:30:00') - new Date();
   if (diff <= 0) return;
   document.getElementById('cd-days').textContent  = String(Math.floor(diff/86400000)).padStart(2,'0');
   document.getElementById('cd-hours').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
