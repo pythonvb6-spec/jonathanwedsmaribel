@@ -72,10 +72,10 @@
     .venue-carousel{position:relative;width:100%;height:260px;overflow:hidden;cursor:pointer;background:#e8edf2}
     .venue-carousel-track{display:flex;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1)}
     .venue-carousel-slide{flex-shrink:0;width:100%;height:100%}
-    .venue-carousel-slide img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none}
-    .venue-carousel-slide .slide-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:rgba(107,142,176,.45);background:linear-gradient(135deg,#eef2f6,#dde6ef)}
-    .venue-carousel-slide .slide-placeholder i{font-size:2.8rem}
-    .venue-carousel-slide .slide-placeholder span{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
+    .venue-carousel-slide img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+    .slide-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:rgba(107,142,176,.45);background:linear-gradient(135deg,#eef2f6,#dde6ef)}
+    .slide-placeholder i{font-size:2.8rem}
+    .slide-placeholder span{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase}
     .vc-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.88);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,.2);transition:all .25s ease;z-index:2;font-size:.8rem;color:#2c2c2c}
     .vc-btn:hover{background:#fff;transform:translateY(-50%) scale(1.1);box-shadow:0 4px 16px rgba(0,0,0,.25)}
     .vc-prev{left:10px}.vc-next{right:10px}
@@ -433,16 +433,16 @@
     <p class="cd-date">May 8, 2026 · 1:30 PM · San Isidro Parish</p>
   </div>
   <div class="venue-section">
-    <p class="section-subtitle">Ceremony & Reception</p><h2 class="section-title">Venue</h2><div class="divider"></div>
+    <p class="section-subtitle">Ceremony</p><h2 class="section-title">Venue</h2><div class="divider"></div>
     <div class="venue-card">
       <div class="venue-carousel" id="vc-ceremony" onclick="vcLightbox('vc-ceremony')">
         <div class="vc-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to zoom</div>
         <div class="venue-carousel-track" id="vc-ceremony-track">
-          <div class="venue-carousel-slide"><img src="images/venue/venue image1.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\'slide-placeholder\'><i class=\'fa-solid fa-church\'></i><span>Ceremony Venue</span></div>'"></div>
-          <div class="venue-carousel-slide"><img src="images/venue/venue image2.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\'slide-placeholder\'><i class=\'fa-solid fa-church\'></i><span>Ceremony Venue</span></div>'"></div>
-          <div class="venue-carousel-slide"><img src="images/venue/venue image3.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\'slide-placeholder\'><i class=\'fa-solid fa-church\'></i><span>Ceremony Venue</span></div>'"></div>
-          <div class="venue-carousel-slide"><img src="images/venue/venue image4.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\'slide-placeholder\'><i class=\'fa-solid fa-church\'></i><span>Ceremony Venue</span></div>'"></div>
-          <div class="venue-carousel-slide"><img src="images/venue/venue image5.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=\'slide-placeholder\'><i class=\'fa-solid fa-church\'></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony1.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-church></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony2.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-church></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony3.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-church></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony4.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-church></i><span>Ceremony Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/ceremony5.jpg" alt="San Isidro Labrador Parish" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-church></i><span>Ceremony Venue</span></div>'"></div>
         </div>
         <button class="vc-btn vc-prev" onclick="event.stopPropagation();vcMove('vc-ceremony',-1)"><i class="fa-solid fa-chevron-left"></i></button>
         <button class="vc-btn vc-next" onclick="event.stopPropagation();vcMove('vc-ceremony',1)"><i class="fa-solid fa-chevron-right"></i></button>
@@ -450,8 +450,31 @@
       </div>
       <div class="venue-info">
         <div class="venue-name">San Isidro Labrador Parish</div>
-        <div class="venue-address"><i class="fa-solid fa-location-dot" style="color:var(--primary);margin-right:6px"></i>Maramba Blvd, Lingayen, Pangasinan</div>
-        <a href="https://www.google.com/maps/dir/?api=1&destination=16.025830030200737, 120.23468616169579" target="_blank" class="direction-btn"><i class="fa-solid fa-diamond-turn-right"></i> Get Directions</a>
+        <div class="venue-address"><i class="fa-solid fa-location-dot" style="color:var(--primary);margin-right:6px"></i>Digos City, Davao del Sur</div>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=6.738257259454732,125.35540466861313" target="_blank" class="direction-btn"><i class="fa-solid fa-diamond-turn-right"></i> Get Directions</a>
+      </div>
+    </div>
+  </div>
+  <div class="venue-section" style="background:#f0efe8">
+    <p class="section-subtitle">Reception</p><h2 class="section-title">Reception Venue</h2><div class="divider"></div>
+    <div class="venue-card">
+      <div class="venue-carousel" id="vc-reception" onclick="vcLightbox('vc-reception')">
+        <div class="vc-zoom-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to zoom</div>
+        <div class="venue-carousel-track" id="vc-reception-track">
+          <div class="venue-carousel-slide"><img src="images/venue/reception1.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-champagne-glasses></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception2.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-champagne-glasses></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception3.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-champagne-glasses></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception4.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-champagne-glasses></i><span>Reception Venue</span></div>'"></div>
+          <div class="venue-carousel-slide"><img src="images/venue/reception5.jpg" alt="Laderas Function Hall" onerror="this.parentElement.innerHTML='<div class=slide-placeholder><i class=fa-solid\ fa-champagne-glasses></i><span>Reception Venue</span></div>'"></div>
+        </div>
+        <button class="vc-btn vc-prev" onclick="event.stopPropagation();vcMove('vc-reception',-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="vc-btn vc-next" onclick="event.stopPropagation();vcMove('vc-reception',1)"><i class="fa-solid fa-chevron-right"></i></button>
+        <div class="vc-dots" id="vc-reception-dots"></div>
+      </div>
+      <div class="venue-info">
+        <div class="venue-name">Laderas Function Hall</div>
+        <div class="venue-address"><i class="fa-solid fa-location-dot" style="color:var(--tertiary);margin-right:6px"></i>3rd Floor · Digos City, Davao del Sur</div>
+        <a href="https://www.google.com/maps/dir/?api=1&destination=6.740094858887625,125.35520046491142" target="_blank" class="direction-btn" style="background:var(--tertiary)"><i class="fa-solid fa-diamond-turn-right"></i> Get Directions</a>
       </div>
     </div>
   </div>
@@ -755,46 +778,58 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQR(); }
 // ── Venue Carousels ───────────────────────────────────────────────────────────
 const vcState = {};
 
-function vcInit(id, total = 5) {
-  vcState[id] = { idx: 0, total, timer: null };
+function vcInit(id, total) {
+  vcState[id] = { idx: 0, total: total, timer: null };
   const dotsEl = document.getElementById(id + '-dots');
+  if (!dotsEl) return;
   dotsEl.innerHTML = '';
   for (let i = 0; i < total; i++) {
     const d = document.createElement('button');
     d.className = 'vc-dot' + (i === 0 ? ' active' : '');
     d.setAttribute('aria-label', 'Slide ' + (i + 1));
-    d.onclick = (e) => { e.stopPropagation(); vcGo(id, i); };
+    const idx = i;
+    d.onclick = function(e) { e.stopPropagation(); vcGo(id, idx); };
     dotsEl.appendChild(d);
   }
-  vcState[id].timer = setInterval(() => vcMove(id, 1), 3000);
+  vcState[id].timer = setInterval(function(){ vcMove(id, 1); }, 3000);
 }
 
 function vcGo(id, idx) {
   const s = vcState[id];
-  s.idx = (idx + s.total) % s.total;
-  document.getElementById(id + '-track').style.transform = `translateX(-${s.idx * 100}%)`;
-  document.querySelectorAll(`#${id}-dots .vc-dot`).forEach((d, i) => d.classList.toggle('active', i === s.idx));
+  if (!s) return;
+  s.idx = ((idx % s.total) + s.total) % s.total;
+  const track = document.getElementById(id + '-track');
+  if (track) track.style.transform = 'translateX(-' + (s.idx * 100) + '%)';
+  document.querySelectorAll('#' + id + '-dots .vc-dot').forEach(function(d, i) {
+    d.classList.toggle('active', i === s.idx);
+  });
 }
 
 function vcMove(id, dir) {
   const s = vcState[id];
+  if (!s) return;
   clearInterval(s.timer);
   vcGo(id, s.idx + dir);
-  s.timer = setInterval(() => vcMove(id, 1), 3000);
+  s.timer = setInterval(function(){ vcMove(id, 1); }, 3000);
 }
 
 function vcLightbox(id) {
   const s = vcState[id];
-  const slides = document.querySelectorAll(`#${id} .venue-carousel-slide img`);
+  if (!s) return;
+  const slides = document.querySelectorAll('#' + id + ' .venue-carousel-slide img');
   if (!slides[s.idx]) return;
   const src = slides[s.idx].src;
   if (!src || src === window.location.href) return;
-  document.getElementById('viewer-img').src = src;
-  document.getElementById('img-viewer').classList.add('active');
+  const viewerImg = document.getElementById('viewer-img');
+  const viewer = document.getElementById('img-viewer');
+  if (viewerImg && viewer) {
+    viewerImg.src = src;
+    viewer.classList.add('active');
+  }
 }
 
-vcInit('vc-ceremony');
-vcInit('vc-reception');
+vcInit('vc-ceremony', 5);
+vcInit('vc-reception', 5);
 
 </script>
 </body>
