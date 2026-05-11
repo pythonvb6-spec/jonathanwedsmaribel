@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Admin — Johndy & Ianjean Wedding</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" href="images/monogram.png">
+</head>
+<body>
+
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <span class="script" style="font-family:'Quill Std','Cormorant Garamond',cursive;font-style:normal;font-size:1.4rem;color:#c9d89e">Johndy & Ianjean</span>
+    <small>Wedding Admin</small>
+  </div>
+  <div class="sidebar-nav">
+    <button class="nav-item active" onclick="showPage('dashboard',event)"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+    <button class="nav-item" onclick="showPage('rsvp',event)"><i class="fa-solid fa-envelope-open-text"></i> RSVP Responses</button>
+    <button class="nav-item" onclick="showPage('wishes',event)"><i class="fa-solid fa-comment-dots"></i> Wishes</button>
+  </div>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="showLogoutModal()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </div>
+</nav>
+
+<div id="main-content">
+  <div id="topbar">
+    <button id="burger-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-badge">Wedding Admin Portal</div>
+    </div>
+    <div style="font-size:.75rem;color:var(--mid);white-space:nowrap">
+      <i class="fa-solid fa-user" style="color:var(--primary);margin-right:4px"></i>
+      <span id="admin-username">—</span>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div class="page-panel active" id="page-dashboard">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">RSVP Responses</div>
+        <div class="stat-value" id="stat-rsvp">—</div>
+        <i class="fa-solid fa-envelope stat-icon"></i>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Expected Guests</div>
+        <div class="stat-value" id="stat-guests">—</div>
+        <i class="fa-solid fa-users stat-icon"></i>
+      </div>
+      <div class="stat-card tertiary">
+        <div class="stat-label">Wishes / Messages</div>
+        <div class="stat-value" id="stat-wishes">—</div>
+        <i class="fa-solid fa-heart stat-icon"></i>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Days to Wedding</div>
+        <div class="stat-value" id="stat-days">—</div>
+        <i class="fa-solid fa-calendar-heart stat-icon"></i>
+      </div>
+    </div>
+    <div class="countdown-card">
+      <h3>Counting down to May 8, 2026 · 1:30 PM</h3>
+      <div class="cd-boxes">
+        <div class="cd-box"><div class="cd-num" id="admin-cd-d">00</div><div class="cd-lbl">Days</div></div>
+        <div class="cd-box"><div class="cd-num" id="admin-cd-h">00</div><div class="cd-lbl">Hours</div></div>
+        <div class="cd-box"><div class="cd-num" id="admin-cd-m">00</div><div class="cd-lbl">Mins</div></div>
+        <div class="cd-box"><div class="cd-num" id="admin-cd-s">00</div><div class="cd-lbl">Secs</div></div>
+      </div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <h3>Recent RSVPs</h3>
+        <button class="btn-export" onclick="showPage('rsvp',null)">View All <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Guests</th><th>Names</th><th>Date</th></tr></thead>
+          <tbody id="recent-table-body">
+            <tr><td colspan="4" style="text-align:center;color:var(--mid);padding:30px"><i class="fa-solid fa-spinner fa-spin"></i></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RSVP PAGE -->
+  <div class="page-panel" id="page-rsvp">
+    <div class="table-card">
+      <div class="table-header">
+        <h3>RSVP Responses</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-rsvp" placeholder="Search guest..." oninput="filterRSVP()">
+          </div>
+          <select class="filter-select" id="filter-guests" onchange="filterRSVP()">
+            <option value="">All</option>
+            <option value="1">1 Guest</option>
+            <option value="2">2 Guests</option>
+            <option value="3">3+ Guests</option>
+          </select>
+          <button class="btn-export" onclick="exportToCSV()"><i class="fa-solid fa-file-excel"></i> Export</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Guests</th><th>Names</th><th>Message</th><th>IP</th><th>Date</th></tr></thead>
+          <tbody id="rsvp-table-body">
+            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--mid)"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:16px 20px;border-top:1px solid #f5f5f0;font-size:.8rem;color:var(--mid)" id="rsvp-count"></div>
+    </div>
+  </div>
+
+  <!-- WISHES PAGE -->
+  <div class="page-panel" id="page-wishes">
+    <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400">Guest Wishes</h3>
+      <span id="wishes-count" style="font-size:.8rem;color:var(--mid)"></span>
+    </div>
+    <div class="wish-grid" id="wish-grid">
+      <div style="text-align:center;padding:40px;color:var(--mid)"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT MODAL -->
+<div class="admin-modal" id="logout-modal">
+  <div class="admin-modal-box">
+    <h3>Sign Out?</h3>
+    <p>Are you sure you want to log out of the admin portal?</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="hideLogoutModal()">Cancel</button>
+      <button class="btn-danger" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Auth guard ────────────────────────────────────────────────────────────────
+fetch('/api/auth_check').then(r => r.json()).then(d => {
+  if (!d.authenticated) { window.location.href = 'login.html'; return; }
+  document.getElementById('admin-username').textContent = d.username;
+  loadDashboard();
+}).catch(() => window.location.href = 'login.html');
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  const s = document.getElementById('sidebar'), b = document.getElementById('burger-btn'), o = document.getElementById('sidebar-overlay');
+  const open = s.classList.toggle('open'); b.classList.toggle('open', open); o.classList.toggle('active', open);
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('burger-btn').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
+// ── Page navigation ───────────────────────────────────────────────────────────
+const pageTitles = { dashboard: 'Dashboard', rsvp: 'RSVP Responses', wishes: 'Guest Wishes' };
+function showPage(page, event) {
+  document.querySelectorAll('.page-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('page-title').textContent = pageTitles[page];
+  if (event?.currentTarget) event.currentTarget.classList.add('active');
+  closeSidebar();
+  if (page === 'rsvp')    loadRSVP();
+  if (page === 'wishes')  loadWishes();
+}
+
+// ── Countdown ─────────────────────────────────────────────────────────────────
+function updateCountdown() {
+  const diff = new Date('2026-05-08T13:30:00') - new Date();
+  if (diff <= 0) return;
+  const d = Math.floor(diff/86400000);
+  document.getElementById('admin-cd-d').textContent = String(d).padStart(2,'0');
+  document.getElementById('admin-cd-h').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
+  document.getElementById('admin-cd-m').textContent = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
+  document.getElementById('admin-cd-s').textContent = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+  document.getElementById('stat-days').textContent = d;
+}
+updateCountdown(); setInterval(updateCountdown, 1000);
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function loadDashboard() {
+  fetch('/api/admin_stats').then(r => r.json()).then(data => {
+    if (!data.success) return;
+    document.getElementById('stat-rsvp').textContent   = data.totalRSVP;
+    document.getElementById('stat-guests').textContent = data.totalGuests;
+    document.getElementById('stat-wishes').textContent = data.totalWishes;
+    const tbody = document.getElementById('recent-table-body');
+    if (!data.recent.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--mid);padding:30px">No RSVPs yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.recent.map(r => `
+      <tr>
+        <td>${r.id}</td>
+        <td><span style="background:rgba(125,142,86,.1);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:500">${r.num_guests}</span></td>
+        <td style="max-width:180px;word-break:break-word">${escHtml(r.guest_names)}</td>
+        <td style="white-space:nowrap;color:var(--mid);font-size:.8rem">${formatDate(r.submitted_at)}</td>
+      </tr>`).join('');
+  }).catch(() => {});
+}
+
+// ── RSVP ──────────────────────────────────────────────────────────────────────
+let allRSVP = [];
+function loadRSVP() {
+  fetch('/api/get_rsvp').then(r => r.json()).then(data => {
+    allRSVP = data.rsvp || [];
+    renderRSVP(allRSVP);
+  }).catch(() => {
+    document.getElementById('rsvp-table-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#e74c3c">Failed to load data.</td></tr>';
+  });
+}
+function renderRSVP(rows) {
+  const tbody = document.getElementById('rsvp-table-body');
+  const countEl = document.getElementById('rsvp-count');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--mid)">No RSVP responses yet.</td></tr>';
+    countEl.textContent = ''; return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td style="color:var(--mid);font-size:.8rem">${r.id}</td>
+      <td><span style="background:rgba(125,142,86,.1);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:500">${r.num_guests}</span></td>
+      <td style="max-width:200px;word-break:break-word;font-size:.875rem">${escHtml(r.guest_names)}</td>
+      <td style="max-width:200px;font-size:.8rem;color:var(--mid);word-break:break-word">${r.message ? escHtml(r.message.substring(0,80)) + (r.message.length > 80 ? '…' : '') : '<em>—</em>'}</td>
+      <td style="font-size:.75rem;color:var(--mid)">${r.ip_address}</td>
+      <td style="white-space:nowrap;font-size:.78rem;color:var(--mid)">${formatDate(r.submitted_at)}</td>
+    </tr>`).join('');
+  const total = rows.reduce((s, r) => s + parseInt(r.num_guests), 0);
+  countEl.textContent = `Showing ${rows.length} response${rows.length!==1?'s':''} · ${total} total guest${total!==1?'s':''}`;
+}
+function filterRSVP() {
+  const q = document.getElementById('search-rsvp').value.toLowerCase();
+  const gf = document.getElementById('filter-guests').value;
+  const filtered = allRSVP.filter(r => {
+    const matchQ = !q || r.guest_names.toLowerCase().includes(q) || r.message?.toLowerCase().includes(q) || r.ip_address.includes(q);
+    const n = parseInt(r.num_guests);
+    const matchG = !gf || (gf==='3' ? n>=3 : n===parseInt(gf));
+    return matchQ && matchG;
+  });
+  renderRSVP(filtered);
+}
+
+// ── Wishes ────────────────────────────────────────────────────────────────────
+function loadWishes() {
+  fetch('/api/get_wishes').then(r => r.json()).then(data => {
+    const wishes = data.wishes || [];
+    const grid = document.getElementById('wish-grid');
+    document.getElementById('wishes-count').textContent = `${wishes.length} message${wishes.length!==1?'s':''}`;
+    if (!wishes.length) {
+      grid.innerHTML = '<div style="text-align:center;padding:60px;color:var(--mid)"><i class="fa-regular fa-comment" style="font-size:2rem;display:block;margin-bottom:12px"></i>No messages yet.</div>';
+      return;
+    }
+    grid.innerHTML = wishes.map(w => `
+      <div class="wish-card">
+        <div class="wish-name"><i class="fa-solid fa-user-pen" style="margin-right:6px;font-size:.8rem"></i>${escHtml(w.guest_names.split(',')[0].trim())}</div>
+        <div class="wish-date">${formatDate(w.submitted_at)}</div>
+        <div class="wish-msg">"${escHtml(w.message)}"</div>
+      </div>`).join('');
+  }).catch(() => {});
+}
+
+// ── Export CSV ────────────────────────────────────────────────────────────────
+function exportToCSV() {
+  if (!allRSVP.length) { alert('No data to export.'); return; }
+  const headers = ['ID','Guests','Names','Message','IP','Date'];
+  const rows = allRSVP.map(r => [r.id, r.num_guests, `"${r.guest_names.replace(/"/g,'""')}"`, `"${(r.message||'').replace(/"/g,'""')}"`, r.ip_address, r.submitted_at]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `rsvp_responses_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+// ── Logout ────────────────────────────────────────────────────────────────────
+function showLogoutModal()  { document.getElementById('logout-modal').classList.add('active'); }
+function hideLogoutModal()  { document.getElementById('logout-modal').classList.remove('active'); }
+function doLogout()         { window.location.href = '/api/logout'; }
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatDate(str) { return new Date(str).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+
+// ── Auto-refresh ──────────────────────────────────────────────────────────────
+setInterval(() => {
+  const active = document.querySelector('.page-panel.active');
+  if (active?.id === 'page-rsvp')    loadRSVP();
+  if (active?.id === 'page-wishes')  loadWishes();
+  if (active?.id === 'page-dashboard') loadDashboard();
+}, 30000);
+</script>
+</body>
+</html>
