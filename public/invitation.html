@@ -492,7 +492,7 @@
       <div class="cd-box"><div class="cd-num" id="cd-mins">00</div><div class="cd-lbl">Mins</div></div>
       <div class="cd-box"><div class="cd-num" id="cd-secs">00</div><div class="cd-lbl">Secs</div></div>
     </div>
-    <p class="cd-date">June 12, 2026 · 3:00 PM · Regina's Garden & Restaurant</p>
+    <p class="cd-date">June 12, 2026 · 5:00 PM · Regina's Garden & Restaurant</p>
   </div>
   <div class="venue-section">
     <p class="section-subtitle">Ceremony & Reception</p><h2 class="section-title">Venue Gallery</h2><div class="divider"></div>
@@ -527,7 +527,7 @@
       <div class="reminder-card">
         <div class="reminder-icon-wrap"><i class="fa-regular fa-clock"></i></div>
         <h5>Arrive Early</h5>
-        <p>For Immediate Family Sponsors: Please be seated by 2:00 PM. The ceremony begins promptly at 3:00 PM.<br> For Guests: Please be seated by 4:00 PM. The event starts at 5:00 PM.</p>
+        <p>For Immediate Family and Sponsors: Please be seated by 2:00 PM. The ceremony begins promptly at 3:00 PM.<br> For Guests: Please be seated by 4:00 PM. The event starts at 5:00 PM.</p>
       </div>
 
       <div class="reminder-card">
@@ -651,8 +651,8 @@
     </svg>
   </div>
   <div class="footer-names">Jonathan &amp; Maribel</div>
-  <p style="font-family:'Jost',sans-serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(184,208,227,.5);margin-bottom:20px">Jonathan Vinluan Villalba &nbsp;&amp;&nbsp; Maribel Tuliao Que</p>
-  <p class="footer-note">"We love because he first loved us."<br>-1 John 4:19</p>
+  <p style="font-family:'Jost',sans-serif;font-size:.60rem;letter-spacing:.10em;text-transform:uppercase;color:rgba(184,208,227,.5);margin-bottom:20px">Jonathan Vinluan Villalba &nbsp;&amp;&nbsp; Maribel Tuliao Que</p>
+  <p class="footer-note">"We love because he first loved us." <br>1 John 4:19</p>
   <p class="footer-date">June 12, 2026 &nbsp;·&nbsp; Regina's Garden & Restaurant</p>
 </footer>
 
@@ -732,7 +732,7 @@ fetch('/api/check_rsvp').then(r => r.json()).then(data => {
   if (data.submitted) {
     c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-circle-check" style="font-size:3.5rem;color:var(--primary);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px">See you there!</h3><p style="color:var(--mid);font-size:.9rem">Your RSVP has already been submitted. We can't wait to celebrate with you!</p></div></div>`;
   } else {
-    c.innerHTML = `<div class="rsvp-card"><div class="rsvp-left"><span class="script">Dear you,</span><p>you've been such an important part of our lives, it wouldn't feel right to start this new chapter without you by our side. Please take a moment to RSVP so we can prepare for your presence.</p><p class="deadline">Kindly respond on or before April 24, 2026</p></div><div class="rsvp-right"><h3>RSVP</h3><div class="form-group"><label class="form-label">Number of guests attending</label><input type="number" class="form-control" id="num-guests" min="1" max="10" placeholder="Please input number of guests"></div><div class="form-group" id="guest-names-wrap"><label class="form-label">Names of guest/s</label><input type="text" class="form-control guest-name-input" placeholder="Please input names"></div><div class="form-group"><label class="form-label">Wishes / Message for the couple</label><textarea class="form-control" id="rsvp-message" placeholder="Write your heartfelt message…"></textarea></div><button class="btn-primary" style="width:100%;justify-content:center" onclick="submitRSVP()">Submit</button></div></div>`;
+    c.innerHTML = `<div class="rsvp-card"><div class="rsvp-left"><span class="script">Dear you,</span><p>you've been such an important part of our lives, it wouldn't feel right to start this new chapter without you by our side. Please take a moment to RSVP so we can prepare for your presence.</p><p class="deadline">Kindly respond on or before May 30, 2026</p></div><div class="rsvp-right"><h3>RSVP</h3><div class="form-group"><label class="form-label">Number of guests attending</label><input type="number" class="form-control" id="num-guests" min="1" max="10" placeholder="Please input number of guests"></div><div class="form-group" id="guest-names-wrap"><label class="form-label">Names of guest/s</label><input type="text" class="form-control guest-name-input" placeholder="Please input names"></div><div class="form-group"><label class="form-label">Wishes / Message for the couple</label><textarea class="form-control" id="rsvp-message" placeholder="Write your heartfelt message…"></textarea></div><button class="btn-primary" style="width:100%;justify-content:center" onclick="submitRSVP()">Submit</button></div></div>`;
     document.getElementById('num-guests').addEventListener('input', function() {
       const n = parseInt(this.value) || 1;
       const wrap = document.getElementById('guest-names-wrap');
