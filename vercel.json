@@ -13,3 +13,12 @@
     }
   ]
 }
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/public/index.html",
+      "permanent": false
+    }
+  ]
+}
