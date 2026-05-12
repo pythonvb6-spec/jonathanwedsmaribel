@@ -25,6 +25,23 @@
     #hero-section{position:relative;overflow:hidden;padding:0;margin-top:40px}
     .hero-banner-img{width:100%;height:calc(100vh - 57px);display:block;object-fit:cover;object-position:center}
     @media(max-width:600px){.hero-banner-img{height:auto;aspect-ratio:16/10;object-position:center 30%}}
+
+    /* ── Hero Slideshow ─────────────────────────────────────────────────────── */
+    .hero-slideshow{position:relative;width:100%;height:calc(100vh - 57px);overflow:hidden;background:#1a2a3a}
+    @media(max-width:600px){.hero-slideshow{height:auto;aspect-ratio:16/10}}
+    .hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.6s cubic-bezier(.4,0,.2,1);z-index:0}
+    .hero-slide.active{opacity:1;z-index:1}
+    .hero-slide img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;
+      /* slightly darken & lower opacity per request */
+      filter:brightness(.78);opacity:.88}
+    /* gradient overlay for text legibility */
+    .hero-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.10) 0%,rgba(0,0,0,.22) 60%,rgba(0,0,0,.45) 100%);pointer-events:none}
+    /* overlay text always on top */
+    .hero-overlay{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;pointer-events:none}
+    /* dot indicators */
+    .hero-dots{position:absolute;bottom:52px;left:50%;transform:translateX(-50%);z-index:11;display:flex;gap:8px}
+    .hero-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.38);border:none;cursor:pointer;transition:all .4s ease;padding:0;pointer-events:all}
+    .hero-dot.active{background:rgba(255,255,255,.92);transform:scale(1.35)}
     .hero-scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:2;animation:bounce 2s ease-in-out infinite;color:rgba(255,255,255,.6);font-size:1rem}
     @keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
     #main-nav a{color:#3d3d2e} #main-nav{transform:translateY(0)!important}
@@ -344,21 +361,27 @@
 </nav>
 
 <section id="hero-section">
-  <div class="hero-banner-img" style="background:linear-gradient(160deg,#3d5e78 0%,#6B8EB0 40%,#4f759b 70%,#2c4a6a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="180" height="135" style="opacity:.85">
-      <!-- Groom -->
-      <circle cx="52" cy="28" r="16" fill="rgba(255,255,255,0.85)"/>
-      <path d="M20 95 Q20 62 52 62 Q84 62 84 95" fill="rgba(255,255,255,0.85)"/>
-      <!-- Bride -->
-      <circle cx="108" cy="28" r="16" fill="rgba(255,255,255,0.85)"/>
-      <path d="M72 95 Q76 58 108 58 Q140 58 144 95" fill="rgba(255,255,255,0.85)"/>
-      <!-- Bride dress flare -->
-      <path d="M72 95 Q90 115 108 95 Q126 115 144 95" fill="rgba(255,255,255,0.85)"/>
-      <!-- Heart -->
-      <path d="M80 48 C80 44 74 40 74 45 C74 50 80 55 80 55 C80 55 86 50 86 45 C86 40 80 44 80 48Z" fill="rgba(255,200,200,0.9)"/>
-    </svg>
-    <div style="font-family:'Great Vibes',cursive;font-size:clamp(2.2rem,8vw,4rem);color:rgba(255,255,255,.9);text-shadow:0 2px 20px rgba(0,0,0,.3)">Jonathan &amp; Maribel</div>
-    <div style="font-family:'Jost',sans-serif;font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.6)">June 12, 2026</div>
+  <div class="hero-slideshow" id="hero-slideshow">
+    <!-- Slides — swap src paths for your actual images -->
+    <div class="hero-slide active"><img src="images/hero/hero1.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero2.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero3.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero4.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero5.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero6.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero7.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero8.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero9.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="images/hero/hero10.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+
+    <!-- Text overlay (same content as before) -->
+    <div class="hero-overlay">
+      <div style="font-family:'Great Vibes',cursive;font-size:clamp(2.2rem,8vw,4rem);color:rgba(255,255,255,.95);text-shadow:0 2px 24px rgba(0,0,0,.45)">Jonathan &amp; Maribel</div>
+      <div style="font-family:'Jost',sans-serif;font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.7);text-shadow:0 1px 8px rgba(0,0,0,.4)">June 12, 2026</div>
+    </div>
+
+    <!-- Dot indicators -->
+    <div class="hero-dots" id="hero-dots"></div>
   </div>
   <div class="hero-scroll-hint"><i class="fa-solid fa-chevron-down"></i></div>
 </section>
@@ -729,8 +752,14 @@ updateCountdown(); setInterval(updateCountdown, 1000);
 // ── RSVP status check ─────────────────────────────────────────────────────────
 fetch('/api/check_rsvp').then(r => r.json()).then(data => {
   const c = document.getElementById('rsvp-container');
+  // Check if deadline has passed (May 30, 2026 23:59:59 PH time, UTC+8)
+  const rsvpDeadline = new Date('2026-05-30T23:59:59+08:00');
+  const deadlinePassed = new Date() > rsvpDeadline;
+
   if (data.submitted) {
     c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-circle-check" style="font-size:3.5rem;color:var(--primary);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px">See you there!</h3><p style="color:var(--mid);font-size:.9rem">Your RSVP has already been submitted. We can't wait to celebrate with you!</p></div></div>`;
+  } else if (deadlinePassed) {
+    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (May 30, 2026) has passed.<br>Please reach out to Jonathan &amp; Maribel directly.</p></div></div>`;
   } else {
     c.innerHTML = `<div class="rsvp-card"><div class="rsvp-left"><span class="script">Dear you,</span><p>you've been such an important part of our lives, it wouldn't feel right to start this new chapter without you by our side. Please take a moment to RSVP so we can prepare for your presence.</p><p class="deadline">Kindly respond on or before May 30, 2026</p></div><div class="rsvp-right"><h3>RSVP</h3><div class="form-group"><label class="form-label">Number of guests attending</label><input type="number" class="form-control" id="num-guests" min="1" max="10" placeholder="Please input number of guests"></div><div class="form-group" id="guest-names-wrap"><label class="form-label">Names of guest/s</label><input type="text" class="form-control guest-name-input" placeholder="Please input names"></div><div class="form-group"><label class="form-label">Wishes / Message for the couple</label><textarea class="form-control" id="rsvp-message" placeholder="Write your heartfelt message…"></textarea></div><button class="btn-primary" style="width:100%;justify-content:center" onclick="submitRSVP()">Submit</button></div></div>`;
     document.getElementById('num-guests').addEventListener('input', function() {
@@ -751,6 +780,12 @@ fetch('/api/check_rsvp').then(r => r.json()).then(data => {
 });
 
 function submitRSVP() {
+  // Block submissions after the May 30, 2026 deadline (midnight PH time, UTC+8)
+  const deadline = new Date('2026-05-30T23:59:59+08:00');
+  if (new Date() > deadline) {
+    alert('We\'re sorry — the RSVP deadline has passed (May 30, 2026). Please contact the couple directly.');
+    return;
+  }
   const num = parseInt(document.getElementById('num-guests')?.value) || 0;
   const names = Array.from(document.querySelectorAll('.guest-name-input')).map(i => i.value.trim()).filter(Boolean);
   const msg = document.getElementById('rsvp-message')?.value.trim() || '';
@@ -967,6 +1002,44 @@ vcInit('vc-reception', 5);
   observer.observe(video);
 
   syncBtn();
+})();
+</script>
+
+<script>
+// ── Hero Slideshow ────────────────────────────────────────────────────────────
+(function () {
+  const SLIDE_COUNT  = 10;
+  const INTERVAL_MS  = 5000;   // change every 5 s
+  const slides       = document.querySelectorAll('.hero-slide');
+  const dotsWrap     = document.getElementById('hero-dots');
+  let   current      = 0;
+  let   timer        = null;
+
+  // Build dot indicators
+  for (let i = 0; i < SLIDE_COUNT; i++) {
+    const d = document.createElement('button');
+    d.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Slide ' + (i + 1));
+    d.addEventListener('click', function () { goTo(i); restart(); });
+    dotsWrap.appendChild(d);
+  }
+
+  function goTo(idx) {
+    slides[current].classList.remove('active');
+    dotsWrap.children[current].classList.remove('active');
+    current = (idx + SLIDE_COUNT) % SLIDE_COUNT;
+    slides[current].classList.add('active');
+    dotsWrap.children[current].classList.add('active');
+  }
+
+  function next() { goTo(current + 1); }
+
+  function restart() {
+    clearInterval(timer);
+    timer = setInterval(next, INTERVAL_MS);
+  }
+
+  restart();
 })();
 </script>
 
