@@ -33,14 +33,26 @@
 
     #home-section{background:var(--secondary);padding:70px 20px}
     .home-header{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,6vw,2.6rem);font-weight:400;font-style:italic;text-align:center;color:var(--dark);margin-bottom:48px;line-height:1.3}
-    .home-content-grid{display:grid;grid-template-columns:1fr;gap:32px;max-width:700px;margin:0 auto 48px}
-    @media(min-width:600px){.home-content-grid{grid-template-columns:1fr 1fr;align-items:start}}
-    @media(min-width:992px){.home-content-grid{max-width:1000px;gap:48px}.home-img-box{aspect-ratio:unset;height:100%;min-height:520px}}
+    .home-content-grid{display:grid;grid-template-columns:1fr;gap:32px;max-width:900px;margin:0 auto 48px}
+    @media(min-width:992px){.home-content-grid{max-width:900px;gap:32px}}
     .home-text p{font-size:.92rem;line-height:1.85;color:#5a5a4a;margin-bottom:16px}
-    .home-img-box{border-radius:20px;overflow:hidden;background:rgba(107,142,176,.1);aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px rgba(0,0,0,.12)}
-    .home-img-box img{width:100%;height:100%;object-fit:cover}
     .home-img-placeholder{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(125,142,86,.5)}
     .home-img-placeholder i{font-size:3rem}
+    .our-story-btn-section{text-align:center;margin-top:16px}
+
+    /* Video box — landscape on all screens */
+    .home-video-box{border-radius:20px;overflow:hidden;background:#000;aspect-ratio:16/9;box-shadow:0 12px 40px rgba(0,0,0,.15);width:100%}
+    .home-video-box video{width:100%;height:100%;object-fit:cover;display:block}
+
+    /* Floating mute button */
+    #mute-btn{
+      position:fixed;bottom:24px;right:24px;z-index:999;
+      width:44px;height:44px;border-radius:50%;border:none;cursor:pointer;
+      background:rgba(30,30,30,.65);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      color:#fff;font-size:1rem;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 4px 16px rgba(0,0,0,.3);transition:background .25s,transform .2s;
+    }
+    #mute-btn:hover{background:rgba(30,30,30,.9);transform:scale(1.08)}
     .our-story-btn-section{text-align:center;margin-top:16px}
 
     #entourage-section{background:#f0efe8;padding:70px 20px}
@@ -360,19 +372,12 @@
       <p>We invite you to explore, RSVP, and take a glimpse into our journey—how two lives found each other and became one shared path. Your presence in our lives has shaped who we are, and having you celebrate this moment with us makes it even more meaningful.</p>
       <p>As the day approaches, our hearts are filled with excitement and gratitude. We cannot wait to stand together, surrounded by the people we love most, and create memories that will stay with us for a lifetime. Thank you for being part of our story and for walking with us as we begin this new chapter together.</p>
     </div>
-    <div class="home-img-box" style="align-items:center;justify-content:center;background:linear-gradient(160deg,#dde8f0 0%,#eef4f8 60%,#d8e8d0 100%)">
-      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:24px">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 130" width="160" height="130">
-          <circle cx="52" cy="30" r="18" fill="#4A6D8C" opacity="0.85"/>
-          <path d="M18 105 Q18 66 52 66 Q86 66 86 105" fill="#4A6D8C" opacity="0.85"/>
-          <circle cx="108" cy="30" r="18" fill="#7da856" opacity="0.85"/>
-          <path d="M74 105 Q78 62 108 62 Q138 62 146 105" fill="#7da856" opacity="0.85"/>
-          <path d="M74 105 Q91 122 108 105 Q125 122 146 105" fill="#7da856" opacity="0.85"/>
-          <path d="M80 52 C80 47 73 43 73 49 C73 55 80 61 80 61 C80 61 87 55 87 49 C87 43 80 47 80 52Z" fill="#c8a0a0"/>
-        </svg>
-        <div style="font-family:'Great Vibes',cursive;font-size:1.6rem;color:#4A6D8C;text-align:center">Jonathan &amp; Maribel</div>
-        <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.85rem;color:#8a8a7a;text-align:center">June 12, 2026</div>
-      </div>
+    <div class="home-video-box">
+      <video id="home-video" autoplay muted playsinline loop preload="auto"
+             poster="https://res.cloudinary.com/dh3jk5ahx/video/upload/so_0,q_auto,f_jpg/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.jpg">
+        <source src="https://res.cloudinary.com/dh3jk5ahx/video/upload/q_auto,f_webm,vc_vp9/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.webm" type="video/webm">
+        <source src="https://res.cloudinary.com/dh3jk5ahx/video/upload/q_auto,f_mp4,vc_h264/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.mp4" type="video/mp4">
+      </video>
     </div>
   </div>
   <div class="our-story-btn-section"><a href="our-story.html" class="btn-primary">Where It All Began</a></div>
@@ -924,5 +929,46 @@ vcInit('vc-ceremony', 5);
 vcInit('vc-reception', 5);
 
 </script>
+<!-- Floating mute/unmute button -->
+<button id="mute-btn" aria-label="Unmute video" title="Unmute">
+  <i class="fa-solid fa-volume-xmark"></i>
+</button>
+
+<script>
+(function(){
+  const video = document.getElementById('home-video');
+  const btn   = document.getElementById('mute-btn');
+  if(!video || !btn) return;
+
+  function syncBtn(){
+    const muted = video.muted || video.volume === 0;
+    btn.innerHTML = muted
+      ? '<i class="fa-solid fa-volume-xmark"></i>'
+      : '<i class="fa-solid fa-volume-high"></i>';
+    btn.setAttribute('aria-label', muted ? 'Unmute video' : 'Mute video');
+    btn.title = muted ? 'Unmute' : 'Mute';
+  }
+
+  btn.addEventListener('click', function(){
+    video.muted = !video.muted;
+    if(!video.muted) video.volume = 1;
+    syncBtn();
+  });
+
+  video.addEventListener('volumechange', syncBtn);
+
+  // Intersection Observer: pause when scrolled out of view, play when back
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){ video.play().catch(()=>{}); }
+      else { video.pause(); }
+    });
+  }, { threshold: 0.2 });
+  observer.observe(video);
+
+  syncBtn();
+})();
+</script>
+
 </body>
 </html>
