@@ -109,6 +109,8 @@
     .reminder-icon-wrap i{color:#3d5c3a;font-size:.95rem}
     .reminder-card h5{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;color:#2c2c1e;margin:0}
     .reminder-card p{font-size:.85rem;color:var(--mid);line-height:1.65;margin:0}
+    .reminder-card--solo{grid-column:1/-1;width:100%}
+    @media(min-width:600px){.reminder-card--solo{max-width:calc(50% - 8px);margin-left:auto;margin-right:auto}}
     .detail-card{max-width:560px;margin:0 auto;background:white;border-radius:16px;padding:28px 24px;box-shadow:0 4px 20px rgba(0,0,0,.07)}
     .detail-item{padding:16px 0;border-bottom:1px solid rgba(0,0,0,.06)}
     .detail-item:last-child{border-bottom:none}
@@ -329,7 +331,22 @@
 </nav>
 
 <section id="hero-section">
-  <img src="images/couple/hero_banner1.jpg" alt="Jonathan & Maribel" class="hero-banner-img" onerror="this.style.minHeight='200px'">
+  <div class="hero-banner-img" style="background:linear-gradient(160deg,#3d5e78 0%,#6B8EB0 40%,#4f759b 70%,#2c4a6a 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="180" height="135" style="opacity:.85">
+      <!-- Groom -->
+      <circle cx="52" cy="28" r="16" fill="rgba(255,255,255,0.85)"/>
+      <path d="M20 95 Q20 62 52 62 Q84 62 84 95" fill="rgba(255,255,255,0.85)"/>
+      <!-- Bride -->
+      <circle cx="108" cy="28" r="16" fill="rgba(255,255,255,0.85)"/>
+      <path d="M72 95 Q76 58 108 58 Q140 58 144 95" fill="rgba(255,255,255,0.85)"/>
+      <!-- Bride dress flare -->
+      <path d="M72 95 Q90 115 108 95 Q126 115 144 95" fill="rgba(255,255,255,0.85)"/>
+      <!-- Heart -->
+      <path d="M80 48 C80 44 74 40 74 45 C74 50 80 55 80 55 C80 55 86 50 86 45 C86 40 80 44 80 48Z" fill="rgba(255,200,200,0.9)"/>
+    </svg>
+    <div style="font-family:'Great Vibes',cursive;font-size:clamp(2.2rem,8vw,4rem);color:rgba(255,255,255,.9);text-shadow:0 2px 20px rgba(0,0,0,.3)">Jonathan &amp; Maribel</div>
+    <div style="font-family:'Jost',sans-serif;font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.6)">June 12, 2026</div>
+  </div>
   <div class="hero-scroll-hint"><i class="fa-solid fa-chevron-down"></i></div>
 </section>
 
@@ -342,11 +359,22 @@
       <p>We invite you to explore, RSVP, and take a glimpse into our journey—how two lives found each other and became one shared path. Your presence in our lives has shaped who we are, and having you celebrate this moment with us makes it even more meaningful.</p>
       <p>As the day approaches, our hearts are filled with excitement and gratitude. We cannot wait to stand together, surrounded by the people we love most, and create memories that will stay with us for a lifetime. Thank you for being part of our story and for walking with us as we begin this new chapter together.</p>
     </div>
-    <div class="home-img-box">
-      <img src="images/couple/couple_home.jpg" alt="Couple" onerror="this.parentElement.innerHTML='<div class=\'home-img-placeholder\'><i class=\'fa-solid fa-heart\'></i></div>'">
+    <div class="home-img-box" style="align-items:center;justify-content:center;background:linear-gradient(160deg,#dde8f0 0%,#eef4f8 60%,#d8e8d0 100%)">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:24px">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 130" width="160" height="130">
+          <circle cx="52" cy="30" r="18" fill="#4A6D8C" opacity="0.85"/>
+          <path d="M18 105 Q18 66 52 66 Q86 66 86 105" fill="#4A6D8C" opacity="0.85"/>
+          <circle cx="108" cy="30" r="18" fill="#7da856" opacity="0.85"/>
+          <path d="M74 105 Q78 62 108 62 Q138 62 146 105" fill="#7da856" opacity="0.85"/>
+          <path d="M74 105 Q91 122 108 105 Q125 122 146 105" fill="#7da856" opacity="0.85"/>
+          <path d="M80 52 C80 47 73 43 73 49 C73 55 80 61 80 61 C80 61 87 55 87 49 C87 43 80 47 80 52Z" fill="#c8a0a0"/>
+        </svg>
+        <div style="font-family:'Great Vibes',cursive;font-size:1.6rem;color:#4A6D8C;text-align:center">Jonathan &amp; Maribel</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.85rem;color:#8a8a7a;text-align:center">June 12, 2026</div>
+      </div>
     </div>
   </div>
-  <div class="our-story-btn-section"><a href="our-story.html" class="btn-primary">The One Where It All Began</a></div>
+  <div class="our-story-btn-section"><a href="our-story.html" class="btn-primary">Where It All Began</a></div>
 </section>
 
 <section id="entourage-section">
@@ -526,6 +554,11 @@
         <p>Formal/semi-formal (ladies are not allowed to wear pants, mini skirts, sleeveless, bodycon, backless, and maongs.)</p>
       </div>
 
+      <div class="reminder-card reminder-card--solo">
+        <div class="reminder-icon-wrap"><i class="fa-solid fa-baby"></i></div>
+        <h5>Strictly No Kids</h5>
+        <p>We kindly request that this be an adults-only celebration. We appreciate your understanding and hope you can still join us for this special day!</p>
+      </div>
     </div>
   </div>
 
@@ -591,8 +624,8 @@
   <h2 class="section-title">Gallery</h2>
   <div class="divider"></div>
   <div class="gallery-carousel" id="gallery-main-wrap">
-    <div class="gallery-main-placeholder" id="gallery-placeholder"><i class="fa-solid fa-images"></i></div>
-    <img id="gallery-main-img" class="gallery-main" src="" alt="Gallery" style="display:none">
+    <div class="gallery-main-placeholder" id="gallery-placeholder" style="display:none"><i class="fa-solid fa-images"></i></div>
+    <div id="gallery-main-img" class="gallery-main"></div>
     <button class="gallery-nav gallery-prev" onclick="galleryPrev()"><i class="fa-solid fa-chevron-left"></i></button>
     <button class="gallery-nav gallery-next" onclick="galleryNext()"><i class="fa-solid fa-chevron-right"></i></button>
   </div>
@@ -602,7 +635,14 @@
 <!-- ===== FOOTER ===== -->
 <footer id="site-footer">
   <div class="footer-couple-img">
-    <img src="images/couple/couple_footer.jpg" alt="Jonathan & Maribel" onerror="this.parentElement.innerHTML='<i class=\'fa-solid fa-heart\'></i>'">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" width="64" height="52">
+      <circle cx="32" cy="18" r="11" fill="rgba(184,208,227,0.85)"/>
+      <path d="M10 65 Q10 40 32 40 Q54 40 54 65" fill="rgba(184,208,227,0.85)"/>
+      <circle cx="68" cy="18" r="11" fill="rgba(184,208,227,0.65)"/>
+      <path d="M46 65 Q49 37 68 37 Q88 37 90 65" fill="rgba(184,208,227,0.65)"/>
+      <path d="M46 65 Q57 76 68 65 Q79 76 90 65" fill="rgba(184,208,227,0.65)"/>
+      <path d="M50 32 C50 29 46 27 46 30 C46 33 50 37 50 37 C50 37 54 33 54 30 C54 27 50 29 50 32Z" fill="rgba(255,180,180,0.8)"/>
+    </svg>
   </div>
   <div class="footer-names">Jonathan &amp; Maribel</div>
   <p style="font-family:'Jost',sans-serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(184,208,227,.5);margin-bottom:20px">Jonathan Vinluan Villalba &nbsp;&amp;&nbsp; Maribel Tuliao Que</p>
@@ -719,48 +759,48 @@ function submitRSVP() {
 function closeModal() { document.getElementById('success-modal').classList.remove('active'); location.reload(); }
 
 // ── Gallery ───────────────────────────────────────────────────────────────────
-const galleryImages = [
-  'images/gallery/photo1.jpg',
-  'images/gallery/photo2.jpg',
-  'images/gallery/photo3.jpg',
-  'images/gallery/photo4.jpg',
-  'images/gallery/photo5.jpg',
-  'images/gallery/photo6.jpg',
-  'images/gallery/photo7.jpg',
-  'images/gallery/photo8.jpg',
-  'images/gallery/photo9.jpg',
-  'images/gallery/photo10.jpg',
-  'images/gallery/photo11.jpg',
-  'images/gallery/photo12.jpg',
-  'images/gallery/photo13.jpg',
-  'images/gallery/photo14.jpg',
-  'images/gallery/photo15.jpg',
-  'images/gallery/photo16.jpg',
-  'images/gallery/photo17.jpg',
-];
+const galleryCount = 17;
 let currentGalleryIdx = 0, galleryInterval;
+
+function coupleSVG(size) {
+  const dim = size === 'thumb' ? 'width="44" height="36"' : 'width="160" height="130"';
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 130" ${dim}>
+    <circle cx="52" cy="30" r="18" fill="#4A6D8C" opacity="0.85"/>
+    <path d="M18 105 Q18 66 52 66 Q86 66 86 105" fill="#4A6D8C" opacity="0.85"/>
+    <circle cx="108" cy="30" r="18" fill="#7da856" opacity="0.85"/>
+    <path d="M74 105 Q78 62 108 62 Q138 62 146 105" fill="#7da856" opacity="0.85"/>
+    <path d="M74 105 Q91 122 108 105 Q125 122 146 105" fill="#7da856" opacity="0.85"/>
+    <path d="M80 52 C80 47 73 43 73 49 C73 55 80 61 80 61 C80 61 87 55 87 49 C87 43 80 47 80 52Z" fill="#c8a0a0"/>
+  </svg>`;
+}
+
+function galleryMainHTML(i) {
+  return `<div style="width:100%;height:100%;background:linear-gradient(160deg,#dde8f0 0%,#eef4f8 60%,#d8e8d0 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px">
+    ${coupleSVG('main')}
+    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:#8a8a7a;letter-spacing:.05em">Photo ${i + 1} of ${galleryCount}</div>
+  </div>`;
+}
+
 function initGallery() {
-  if (!galleryImages.length) return;
-  const main = document.getElementById('gallery-main-img');
-  document.getElementById('gallery-placeholder').style.display = 'none';
-  main.style.display = 'block'; main.src = galleryImages[0];
+  const mainDiv = document.getElementById('gallery-main-img');
+  mainDiv.innerHTML = galleryMainHTML(0);
   const thumbs = document.getElementById('gallery-thumbs');
-  galleryImages.forEach((img, i) => {
-    const d = document.createElement('div'); d.className = 'gallery-thumb' + (i===0?' active':'');
+  for (let i = 0; i < galleryCount; i++) {
+    const d = document.createElement('div');
+    d.className = 'gallery-thumb' + (i === 0 ? ' active' : '');
     d.onclick = () => setGalleryImg(i);
-    const im = document.createElement('img'); im.src = img; im.alt = 'Gallery ' + (i+1);
-    im.addEventListener('click', () => { document.getElementById('viewer-img').src = img; document.getElementById('img-viewer').classList.add('active'); });
-    d.appendChild(im); thumbs.appendChild(d);
-  });
+    d.innerHTML = `<div style="width:100%;height:100%;background:linear-gradient(160deg,#dde8f0,#d8e8d0);display:flex;align-items:center;justify-content:center">${coupleSVG('thumb')}</div>`;
+    thumbs.appendChild(d);
+  }
   galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000);
 }
 function setGalleryImg(idx) {
-  currentGalleryIdx = (idx + galleryImages.length) % galleryImages.length;
-  document.getElementById('gallery-main-img').src = galleryImages[currentGalleryIdx];
-  document.querySelectorAll('.gallery-thumb').forEach((t,i) => t.classList.toggle('active', i===currentGalleryIdx));
+  currentGalleryIdx = (idx + galleryCount) % galleryCount;
+  document.getElementById('gallery-main-img').innerHTML = galleryMainHTML(currentGalleryIdx);
+  document.querySelectorAll('.gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === currentGalleryIdx));
 }
-function galleryNext() { setGalleryImg(currentGalleryIdx+1); clearInterval(galleryInterval); galleryInterval=setInterval(()=>setGalleryImg(currentGalleryIdx+1),3000); }
-function galleryPrev() { setGalleryImg(currentGalleryIdx-1); clearInterval(galleryInterval); galleryInterval=setInterval(()=>setGalleryImg(currentGalleryIdx+1),3000); }
+function galleryNext() { setGalleryImg(currentGalleryIdx + 1); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); }
+function galleryPrev() { setGalleryImg(currentGalleryIdx - 1); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); }
 initGallery();
 
 function closeViewer() { document.getElementById('img-viewer').classList.remove('active'); }
