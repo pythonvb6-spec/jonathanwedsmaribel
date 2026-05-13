@@ -363,16 +363,16 @@
 <section id="hero-section">
   <div class="hero-slideshow" id="hero-slideshow">
     <!-- Slides — swap src paths for your actual images -->
-    <div class="hero-slide active"><img src="images/hero/hero1.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero2.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero3.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero4.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero5.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero6.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero7.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero8.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero9.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="images/hero/hero10.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide active"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710042/hero1_s0jpcw.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710046/hero2_jcldya.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710042/hero3_hobox0.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710048/hero4_iuxut4.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710045/hero5_sklp7h.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710050/hero6_lf1k6w.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710048/hero7_slkjku.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710051/hero8_wnvot9.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710056/hero9_o3ouk6.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710042/hero10_bott3z.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
 
     <!-- Text overlay (same content as before) -->
     <div class="hero-overlay">
@@ -554,7 +554,7 @@
       </div>
 
       <div class="reminder-card">
-        <div class="reminder-icon-wrap"><i class="fa-solid fa-mobile-screen-button"></i></div>
+        <div class="reminder-icon-wrap"><img src="images/nophone.png" alt="No phones" style="width:22px;height:22px;object-fit:contain"></div>
         <h5>Unplugged Ceremony</h5>
         <p>We kindly ask that phones be silenced during the ceremony. Be present with us!</p>
       </div>
@@ -563,12 +563,6 @@
         <div class="reminder-icon-wrap"><i class="fa-solid fa-gift"></i></div>
         <h5>Note on Gifts</h5>
         <p>Your presence is our greatest gift. If you wish to bless us further, a monetary gift is deeply appreciated.</p>
-      </div>
-
-      <div class="reminder-card">
-        <div class="reminder-icon-wrap"><i class="fa-solid fa-camera"></i></div>
-        <h5>Snap &amp; Share</h5>
-        <p>Help capture our special day and share by tagging us on social media. We love every shot!</p>
       </div>
 
       <div class="reminder-card">
@@ -872,48 +866,91 @@ function submitRSVP() {
 function closeModal() { document.getElementById('success-modal').classList.remove('active'); location.reload(); }
 
 // ── Gallery ───────────────────────────────────────────────────────────────────
-const galleryCount = 17;
+// ↓↓↓ Add / remove Cloudinary URLs here. The gallery adapts automatically. ↓↓↓
+const GALLERY_IMAGES = [
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711505/gallery2_z5opoq.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710624/EMC03388_lp1emr.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711515/gallery3_insqyc.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711503/gallery4_cgvrf7.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711500/gallery5_x3kc7l.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711519/gallery6_m0y5ed.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778712656/gallery_ocqq2h.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711505/gallery8_xnbfyv.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711496/gallery9_rq9hrm.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711512/gallery10_ez7dhw.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711493/gallery11_ybcogj.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711516/gallery12_bwaid2.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711495/gallery13_jsks0p.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711498/gallery14_t6hzgs.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711501/gallery15_psufta.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711504/gallery16_mafl51.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711513/gallery17_jzgbv0.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711489/gallery18_castb7.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711519/gallery19_fpm5e0.jpg',
+  'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711509/gallery20_lt3vtw.jpg',
+];
+// ↑↑↑ End of image list ↑↑↑
+
+const galleryCount = GALLERY_IMAGES.length;
 let currentGalleryIdx = 0, galleryInterval;
 
-function coupleSVG(size) {
-  const dim = size === 'thumb' ? 'width="44" height="36"' : 'width="160" height="130"';
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 130" ${dim}>
-    <circle cx="52" cy="30" r="18" fill="#4A6D8C" opacity="0.85"/>
-    <path d="M18 105 Q18 66 52 66 Q86 66 86 105" fill="#4A6D8C" opacity="0.85"/>
-    <circle cx="108" cy="30" r="18" fill="#7da856" opacity="0.85"/>
-    <path d="M74 105 Q78 62 108 62 Q138 62 146 105" fill="#7da856" opacity="0.85"/>
-    <path d="M74 105 Q91 122 108 105 Q125 122 146 105" fill="#7da856" opacity="0.85"/>
-    <path d="M80 52 C80 47 73 43 73 49 C73 55 80 61 80 61 C80 61 87 55 87 49 C87 43 80 47 80 52Z" fill="#c8a0a0"/>
-  </svg>`;
-}
-
 function galleryMainHTML(i) {
-  return `<div style="width:100%;height:100%;background:linear-gradient(160deg,#dde8f0 0%,#eef4f8 60%,#d8e8d0 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px">
-    ${coupleSVG('main')}
-    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:#8a8a7a;letter-spacing:.05em">Photo ${i + 1} of ${galleryCount}</div>
-  </div>`;
+  const src = GALLERY_IMAGES[i];
+  return `<img
+    src="${src}"
+    alt="Jonathan & Maribel — Photo ${i + 1}"
+    style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in"
+    loading="lazy"
+    onclick="openGalleryViewer(${i})"
+    onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\\'width:100%;height:100%;background:linear-gradient(160deg,#dde8f0,#d8e8d0);display:flex;align-items:center;justify-content:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#8a8a7a\\'>Photo ${i + 1}</div>'"
+  >`;
 }
 
 function initGallery() {
   const mainDiv = document.getElementById('gallery-main-img');
   mainDiv.innerHTML = galleryMainHTML(0);
+
   const thumbs = document.getElementById('gallery-thumbs');
   for (let i = 0; i < galleryCount; i++) {
     const d = document.createElement('div');
     d.className = 'gallery-thumb' + (i === 0 ? ' active' : '');
-    d.onclick = () => setGalleryImg(i);
-    d.innerHTML = `<div style="width:100%;height:100%;background:linear-gradient(160deg,#dde8f0,#d8e8d0);display:flex;align-items:center;justify-content:center">${coupleSVG('thumb')}</div>`;
+    d.onclick = () => { setGalleryImg(i); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); };
+    const img = document.createElement('img');
+    img.src = GALLERY_IMAGES[i];
+    img.alt = 'Photo ' + (i + 1);
+    img.loading = 'lazy';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+    // fallback: show a tinted placeholder if the image fails
+    img.onerror = function() {
+      this.style.display = 'none';
+      d.style.background = 'linear-gradient(160deg,#dde8f0,#d8e8d0)';
+    };
+    d.appendChild(img);
     thumbs.appendChild(d);
   }
+
   galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000);
 }
+
 function setGalleryImg(idx) {
   currentGalleryIdx = (idx + galleryCount) % galleryCount;
   document.getElementById('gallery-main-img').innerHTML = galleryMainHTML(currentGalleryIdx);
   document.querySelectorAll('.gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === currentGalleryIdx));
 }
+
 function galleryNext() { setGalleryImg(currentGalleryIdx + 1); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); }
 function galleryPrev() { setGalleryImg(currentGalleryIdx - 1); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); }
+
+// Open the full-screen viewer from gallery
+function openGalleryViewer(i) {
+  const viewerImg = document.getElementById('viewer-img');
+  const viewer    = document.getElementById('img-viewer');
+  if (viewerImg && viewer) {
+    viewerImg.src = GALLERY_IMAGES[i];
+    viewer.classList.add('active');
+  }
+}
+
 initGallery();
 
 function closeViewer() { document.getElementById('img-viewer').classList.remove('active'); }
