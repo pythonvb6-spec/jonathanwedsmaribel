@@ -1384,7 +1384,7 @@ vcInit('vc-reception', 5);
   // Slide 1 is already loaded (eager in HTML). Slides 2-10 have data-src only.
   function loadSlide(idx) {
     const img = slides[idx]?.querySelector('img[data-src]');
-    if (img && !img.src) {
+    if (img && img.getAttribute('src') === '') {
       img.src = img.dataset.src;
     }
   }
