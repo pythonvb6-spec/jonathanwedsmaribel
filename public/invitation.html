@@ -4,8 +4,44 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Jonathan Villalba & Maribel Que — Our Wedding</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- ① Preconnect to every external origin so DNS+TLS is done before the browser needs them -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+  <!-- ② Preload hero1 — the very first image the user sees; must arrive FAST -->
+  <link rel="preload" as="image"
+        href="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710042/hero1_s0jpcw.jpg"
+        fetchpriority="high">
+
+  <!-- ③ Google Fonts — loaded non-blocking (rel=preload + onload trick) -->
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&family=Great+Vibes&display=swap"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&family=Great+Vibes&display=swap">
+  </noscript>
+
+  <!-- ④ Font Awesome — load async so it never blocks rendering -->
+  <link rel="preload" as="style"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </noscript>
+
+  <!-- ⑤ Bootstrap — async (same trick). Almost nothing here actually needs it. -->
+  <link rel="preload" as="style"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+        onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+  </noscript>
+
+  <!-- ⑥ Site CSS — inline critical styles are in <style> below; this loads the rest -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="images/monogram.png">
   <style>
@@ -371,17 +407,48 @@
 
 <section id="hero-section">
   <div class="hero-slideshow" id="hero-slideshow">
-    <!-- Slides — swap src paths for your actual images -->
-    <div class="hero-slide active"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710042/hero1_s0jpcw.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710046/hero2_jcldya.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710042/hero3_hobox0.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710048/hero4_iuxut4.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710045/hero5_sklp7h.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710050/hero6_lf1k6w.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710048/hero7_slkjku.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710051/hero8_wnvot9.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710056/hero9_o3ouk6.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
-    <div class="hero-slide"><img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710042/hero10_bott3z.jpg" alt="Jonathan & Maribel" onerror="this.style.display='none'"></div>
+    <!-- Slide 1: eager + high priority (preloaded in <head>) -->
+    <div class="hero-slide active">
+      <img src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710042/hero1_s0jpcw.jpg"
+           alt="Jonathan & Maribel" fetchpriority="high" onerror="this.style.display='none'">
+    </div>
+    <!-- Slides 2-10: lazy-loaded + Cloudinary optimized -->
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710046/hero2_jcldya.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710042/hero3_hobox0.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710048/hero4_iuxut4.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710045/hero5_sklp7h.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710050/hero6_lf1k6w.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710048/hero7_slkjku.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710051/hero8_wnvot9.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710056/hero9_o3ouk6.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-slide">
+      <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710042/hero10_bott3z.jpg"
+           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+    </div>
 
     <!-- Text overlay (same content as before) -->
     <div class="hero-overlay">
@@ -405,10 +472,13 @@
       <p>As the day approaches, our hearts are filled with excitement and gratitude. We cannot wait to stand together, surrounded by the people we love most, and create memories that will stay with us for a lifetime. Thank you for being part of our story and for walking with us as we begin this new chapter together.</p>
     </div>
     <div class="home-video-box">
-      <video id="home-video" autoplay muted playsinline loop preload="auto"
-             poster="https://res.cloudinary.com/dh3jk5ahx/video/upload/so_0,q_auto,f_jpg/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.jpg">
-        <source src="https://res.cloudinary.com/dh3jk5ahx/video/upload/q_auto,f_webm,vc_vp9/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.webm" type="video/webm">
-        <source src="https://res.cloudinary.com/dh3jk5ahx/video/upload/q_auto,f_mp4,vc_h264/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.mp4" type="video/mp4">
+      <!-- preload="none" = browser does NOT download video on page load.
+           It only starts when the user scrolls it into view (IntersectionObserver below).
+           This alone saves ~10–30MB of bandwidth on first load. -->
+      <video id="home-video" autoplay muted playsinline loop preload="none"
+             poster="https://res.cloudinary.com/dh3jk5ahx/video/upload/w_800,q_auto,f_jpg/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.jpg">
+        <source src="https://res.cloudinary.com/dh3jk5ahx/video/upload/q_auto,vc_vp9/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.webm" type="video/webm">
+        <source src="https://res.cloudinary.com/dh3jk5ahx/video/upload/q_auto,vc_h264/v1778583989/Jonathan_Maribel_STD_VIDEO_fn4gxs.mp4" type="video/mp4">
       </video>
     </div>
   </div>
@@ -1020,7 +1090,9 @@ function closeSadModal() { document.getElementById('sad-modal').classList.remove
 function closeDuplicateModal() { document.getElementById('duplicate-modal').classList.remove('active'); }
 
 // ── Gallery ───────────────────────────────────────────────────────────────────
-// ↓↓↓ Add / remove Cloudinary URLs here. The gallery adapts automatically. ↓↓↓
+// Cloudinary transforms applied to every URL:
+//   w_1200,q_auto,f_auto  → main display
+//   w_200,h_200,c_fill,q_auto,f_auto → thumbnails (tiny, square-cropped)
 const GALLERY_IMAGES = [
   'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711505/gallery2_z5opoq.jpg',
   'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778710624/EMC03388_lp1emr.jpg',
@@ -1043,24 +1115,31 @@ const GALLERY_IMAGES = [
   'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711519/gallery19_fpm5e0.jpg',
   'https://res.cloudinary.com/dm9yv1jnc/image/upload/v1778711509/gallery20_lt3vtw.jpg',
 ];
-// ↑↑↑ End of image list ↑↑↑
+
+// Inject Cloudinary transforms into a raw upload URL
+function clUrl(raw, transforms) {
+  return raw.replace('/upload/', `/upload/${transforms}/`);
+}
 
 const galleryCount = GALLERY_IMAGES.length;
 let currentGalleryIdx = 0, galleryInterval;
+let galleryInitialized = false;
 
 function galleryMainHTML(i) {
-  const src = GALLERY_IMAGES[i];
+  const src = clUrl(GALLERY_IMAGES[i], 'w_1200,q_auto,f_auto');
   return `<img
     src="${src}"
     alt="Jonathan & Maribel — Photo ${i + 1}"
     style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in"
-    loading="lazy"
     onclick="openGalleryViewer(${i})"
-    onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\\'width:100%;height:100%;background:linear-gradient(160deg,#dde8f0,#d8e8d0);display:flex;align-items:center;justify-content:center;font-family:Cormorant Garamond,serif;font-style:italic;color:#8a8a7a\\'>Photo ${i + 1}</div>'"
+    onerror="this.style.display='none'"
   >`;
 }
 
 function initGallery() {
+  if (galleryInitialized) return;
+  galleryInitialized = true;
+
   const mainDiv = document.getElementById('gallery-main-img');
   mainDiv.innerHTML = galleryMainHTML(0);
 
@@ -1070,11 +1149,11 @@ function initGallery() {
     d.className = 'gallery-thumb' + (i === 0 ? ' active' : '');
     d.onclick = () => { setGalleryImg(i); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); };
     const img = document.createElement('img');
-    img.src = GALLERY_IMAGES[i];
+    // Thumbnails: tiny 200×200 crop from Cloudinary — loads in <5KB each
+    img.src = clUrl(GALLERY_IMAGES[i], 'w_200,h_200,c_fill,q_auto,f_auto');
     img.alt = 'Photo ' + (i + 1);
     img.loading = 'lazy';
     img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
-    // fallback: show a tinted placeholder if the image fails
     img.onerror = function() {
       this.style.display = 'none';
       d.style.background = 'linear-gradient(160deg,#dde8f0,#d8e8d0)';
@@ -1095,17 +1174,31 @@ function setGalleryImg(idx) {
 function galleryNext() { setGalleryImg(currentGalleryIdx + 1); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); }
 function galleryPrev() { setGalleryImg(currentGalleryIdx - 1); clearInterval(galleryInterval); galleryInterval = setInterval(() => setGalleryImg(currentGalleryIdx + 1), 3000); }
 
-// Open the full-screen viewer from gallery
+// Open the full-screen viewer — use full-res image (no width cap)
 function openGalleryViewer(i) {
   const viewerImg = document.getElementById('viewer-img');
   const viewer    = document.getElementById('img-viewer');
   if (viewerImg && viewer) {
-    viewerImg.src = GALLERY_IMAGES[i];
+    viewerImg.src = clUrl(GALLERY_IMAGES[i], 'q_auto,f_auto');
     viewer.classList.add('active');
   }
 }
 
-initGallery();
+// ── Defer gallery init until the section scrolls into view ────────────────────
+// This means gallery images don't even start loading until the guest scrolls
+// past the RSVP section — saves ~15–25 requests on first load.
+const gallerySection = document.getElementById('gallery-section');
+if (gallerySection) {
+  const galleryObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      initGallery();
+      galleryObserver.disconnect();
+    }
+  }, { rootMargin: '200px' }); // start loading 200px before it enters view
+  galleryObserver.observe(gallerySection);
+} else {
+  initGallery();
+}
 
 function closeViewer() { document.getElementById('img-viewer').classList.remove('active'); }
 document.getElementById('img-viewer')?.addEventListener('click', function(e) { if (e.target===this) closeViewer(); });
@@ -1272,7 +1365,7 @@ vcInit('vc-reception', 5);
 // ── Hero Slideshow ────────────────────────────────────────────────────────────
 (function () {
   const SLIDE_COUNT  = 10;
-  const INTERVAL_MS  = 5000;   // change every 5 s
+  const INTERVAL_MS  = 5000;
   const slides       = document.querySelectorAll('.hero-slide');
   const dotsWrap     = document.getElementById('hero-dots');
   let   current      = 0;
@@ -1287,13 +1380,31 @@ vcInit('vc-reception', 5);
     dotsWrap.appendChild(d);
   }
 
+  // Lazy-load a slide's image from data-src just before it becomes visible.
+  // Slide 1 is already loaded (eager in HTML). Slides 2-10 have data-src only.
+  function loadSlide(idx) {
+    const img = slides[idx]?.querySelector('img[data-src]');
+    if (img && !img.src) {
+      img.src = img.dataset.src;
+    }
+  }
+
   function goTo(idx) {
     slides[current].classList.remove('active');
     dotsWrap.children[current].classList.remove('active');
     current = (idx + SLIDE_COUNT) % SLIDE_COUNT;
+
+    // Pre-load the NEXT slide in background so it's ready before we switch to it
+    const nextIdx = (current + 1) % SLIDE_COUNT;
+    loadSlide(current);
+    loadSlide(nextIdx);
+
     slides[current].classList.add('active');
     dotsWrap.children[current].classList.add('active');
   }
+
+  // Pre-load slide 2 right away (5s before it's needed)
+  loadSlide(1);
 
   function next() { goTo(current + 1); }
 
