@@ -718,7 +718,47 @@
   <p class="section-subtitle-light">Kindly Respond</p>
   <h2 class="section-title-light">RSVP</h2>
   <div class="rsvp-container" id="rsvp-container">
-    <div style="text-align:center;color:rgba(184,208,227,.6);padding:40px"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem"></i></div>
+    <!-- Form is here by default. JS replaces it ONLY if already submitted or deadline passed. -->
+    <div class="rsvp-card" id="rsvp-form-card">
+      <div class="rsvp-left">
+        <span class="script">Dear you,</span>
+        <p>you've been such an important part of our lives, it wouldn't feel right to start this new chapter without you by our side. Please take a moment to RSVP so we can prepare for your presence.</p>
+        <p class="deadline">Kindly respond on or before May 30, 2026</p>
+      </div>
+      <div class="rsvp-right">
+        <h3>RSVP</h3>
+
+        <!-- Step 1: Attendance question -->
+        <div id="rsvp-step1">
+          <p class="rsvp-attend-q">Will you be joining us on our special day?</p>
+          <div class="rsvp-attend-btns">
+            <button class="btn-attend yes" onclick="rsvpAnswer('yes')">
+              <i class="fa-solid fa-heart"></i> Yes, I'll be there!
+            </button>
+            <button class="btn-attend no" onclick="rsvpAnswer('no')">
+              <i class="fa-solid fa-heart-crack"></i> Sorry, I can't
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Full form (shown only after "yes") -->
+        <div id="rsvp-step2" style="display:none">
+          <div class="form-group">
+            <label class="form-label">Number of guests attending</label>
+            <input type="number" class="form-control" id="num-guests" min="1" max="10" placeholder="Please input number of guests">
+          </div>
+          <div class="form-group" id="guest-names-wrap">
+            <label class="form-label">Names of guest/s</label>
+            <input type="text" class="form-control guest-name-input" placeholder="Please input names">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Wishes / Message for the couple</label>
+            <textarea class="form-control" id="rsvp-message" placeholder="Write your heartfelt message…"></textarea>
+          </div>
+          <button class="btn-primary" style="width:100%;justify-content:center" onclick="submitRSVP()">Submit RSVP</button>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -875,10 +915,10 @@ function renderRSVPForm(c) {
   const rsvpDeadline = new Date('2026-05-30T23:59:59+08:00');
   const deadlinePassed = new Date() > rsvpDeadline;
 
-  // Check localStorage — this is the ONLY same-device check.
-  // We intentionally do NOT call the server here because all guests
-  // on the same WiFi/network share one public IP, which would cause
-  // the server to incorrectly block them after the first person submits.
+  // 1. Check localStorage — the ONLY same-device gate.
+  //    No server call. All guests on same WiFi share one public IP,
+  //    so checking IP server-side would block different guests after
+  //    the first one submits.
   try {
     const saved = localStorage.getItem(RSVP_LS_KEY);
     if (saved) {
@@ -888,13 +928,28 @@ function renderRSVPForm(c) {
     }
   } catch (_) {}
 
-  // Deadline check
+  // 2. Deadline passed — hide the form
   if (deadlinePassed) {
-    renderRSVPForm(c);
+    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (May 30, 2026) has passed.<br>Please reach out to Jonathan & Maribel directly.</p></div></div>`;
     return;
   }
 
-  // No localStorage entry = fresh device, show the form (already in HTML)
+  // 3. Fresh device, deadline not passed — form is already in the HTML, just wire up the listener
+  const numGuestsInput = document.getElementById('num-guests');
+  if (numGuestsInput) {
+    numGuestsInput.addEventListener('input', function() {
+      const n = parseInt(this.value) || 1;
+      const wrap = document.getElementById('guest-names-wrap');
+      const lbl = wrap.querySelector('label');
+      wrap.innerHTML = ''; wrap.appendChild(lbl);
+      for (let i = 0; i < n; i++) {
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.className = 'form-control guest-name-input';
+        inp.placeholder = `Guest ${i+1} full name`; inp.style.marginBottom = '8px';
+        wrap.appendChild(inp);
+      }
+    });
+  }
 })();
 
 function rsvpAnswer(answer) {
