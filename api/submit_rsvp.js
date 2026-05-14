@@ -5,30 +5,12 @@ import { supabase, getClientIP } from './_supabase.js';
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Invalid request method.' });
   }
 
   const ip = getClientIP(req);
-
-  // Check if already submitted
-  const { data: existing } = await supabase
-    .from('rsvp')
-    .select('id')
-    .eq('ip_address', ip)
-    .maybeSingle();
-
-  if (existing) {
-    return res.status(200).json({
-      success: false,
-      message: 'You have already submitted an RSVP from this device.'
-    });
-  }
-
   const body = req.body || {};
   const attending = (body.attending ?? 'yes').toLowerCase();
 
@@ -36,7 +18,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: false, message: 'Invalid attendance value.' });
   }
 
-  // ── "No" RSVP — just record the declination, no guest details needed ──────
+  // ── "No" RSVP ──────────────────────────────────────────────────────────────
   if (attending === 'no') {
     const { error } = await supabase.from('rsvp').insert({
       ip_address:  ip,
@@ -47,9 +29,6 @@ export default async function handler(req, res) {
     });
 
     if (error) {
-      if (error.code === '23505') {
-        return res.status(200).json({ success: false, message: 'You have already submitted an RSVP.' });
-      }
       console.error('Supabase insert error:', error);
       return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
     }
@@ -57,10 +36,10 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, attending: 'no' });
   }
 
-  // ── "Yes" RSVP — full guest details required ──────────────────────────────
-  const numGuests    = parseInt(body.num_guests ?? 0);
+  // ── "Yes" RSVP — validate input ────────────────────────────────────────────
+  const numGuests = parseInt(body.num_guests ?? 0);
   const guestNamesRaw = body.guest_names ?? '';
-  const message      = (body.message ?? '').trim();
+  const message = (body.message ?? '').trim();
 
   if (numGuests < 1 || numGuests > 20) {
     return res.status(200).json({ success: false, message: 'Invalid number of guests.' });
@@ -85,6 +64,35 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: false, message: 'Please provide valid guest names.' });
   }
 
+  // ── Name duplicate check ────────────────────────────────────────────────────
+  // Fetch all existing guest_names from the DB and check for matches.
+  const { data: existingRows } = await supabase
+    .from('rsvp')
+    .select('guest_names')
+    .eq('attending', 'yes')
+    .not('guest_names', 'is', null);
+
+  // Flatten all recorded names into a single lowercase set
+  const registeredNames = new Set();
+  if (existingRows) {
+    for (const row of existingRows) {
+      const names = row.guest_names.split(',').map(n => n.trim().toLowerCase());
+      names.forEach(n => registeredNames.add(n));
+    }
+  }
+
+  // Find which submitted names are already registered
+  const duplicates = guestNames.filter(n => registeredNames.has(n.toLowerCase()));
+
+  if (duplicates.length > 0) {
+    return res.status(200).json({
+      success: false,
+      duplicate_names: duplicates,
+      message: `The following guest(s) are already in our list: ${duplicates.join(', ')}`
+    });
+  }
+
+  // ── Insert ─────────────────────────────────────────────────────────────────
   const { error } = await supabase.from('rsvp').insert({
     ip_address:  ip,
     attending:   'yes',
@@ -94,12 +102,13 @@ export default async function handler(req, res) {
   });
 
   if (error) {
-    if (error.code === '23505') {
-      return res.status(200).json({ success: false, message: 'You have already submitted an RSVP.' });
-    }
     console.error('Supabase insert error:', error);
     return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
   }
 
-  return res.status(200).json({ success: true, attending: 'yes', message: 'RSVP submitted successfully!' });
+  return res.status(200).json({
+    success: true,
+    attending: 'yes',
+    message: 'RSVP submitted successfully!'
+  });
 }

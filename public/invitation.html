@@ -778,7 +778,21 @@
   </div>
 </div>
 
-<!-- IMAGE VIEWER -->
+<!-- DUPLICATE NAME MODAL -->
+<div class="modal-overlay" id="duplicate-modal">
+  <div class="modal-box">
+    <div class="success-modal-content">
+      <i class="fa-solid fa-user-xmark" style="font-size:3rem;color:#c0392b;margin-bottom:16px"></i>
+      <h4>Already on the List!</h4>
+      <p style="margin-bottom:12px">The following guest(s) have already been registered:</p>
+      <ul id="duplicate-names-list" style="list-style:none;padding:0;margin-bottom:20px;text-align:left"></ul>
+      <p style="font-size:.82rem;color:var(--mid);margin-bottom:20px">Please double-check the names and try again.</p>
+      <button class="btn-primary" onclick="closeDuplicateModal()">Got it</button>
+    </div>
+  </div>
+</div>
+
+
 <div id="img-viewer">
   <img id="viewer-img" src="" alt="">
   <button class="close-viewer" onclick="closeViewer()"><i class="fa-solid fa-xmark"></i></button>
@@ -837,86 +851,66 @@ function updateCountdown() {
 updateCountdown(); setInterval(updateCountdown, 1000);
 
 // ── RSVP status check ─────────────────────────────────────────────────────────
-fetch('/api/check_rsvp').then(r => r.json()).then(data => {
+// Primary: localStorage (same-device). Fallback: server IP check.
+const RSVP_LS_KEY = 'jm_rsvp_submitted';
+
+function renderRSVPAlreadySubmitted(attending) {
   const c = document.getElementById('rsvp-container');
-  // Check if deadline has passed (May 30, 2026 23:59:59 PH time, UTC+8)
+  if (attending === 'no') {
+    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-heart-crack" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">We'll Miss You</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">Your response has been noted. Jonathan & Maribel will keep you in their hearts.</p></div></div>`;
+  } else {
+    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-circle-check" style="font-size:3.5rem;color:var(--primary);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px">See you there!</h3><p style="color:var(--mid);font-size:.9rem">Your RSVP has already been submitted. We can't wait to celebrate with you!</p></div></div>`;
+  }
+}
+
+function renderRSVPForm(c) {
+  const rsvpDeadline = new Date('2026-05-30T23:59:59+08:00');
+  if (new Date() > rsvpDeadline) {
+    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (May 30, 2026) has passed.<br>Please reach out to Jonathan & Maribel directly.</p></div></div>`;
+  }
+}
+
+(function initRSVPCheck() {
+  const c = document.getElementById('rsvp-container');
   const rsvpDeadline = new Date('2026-05-30T23:59:59+08:00');
   const deadlinePassed = new Date() > rsvpDeadline;
 
-  if (data.submitted) {
-    if (data.attending === 'no') {
-      c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-heart-crack" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">We'll Miss You</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">Your response has been noted. Jonathan &amp; Maribel will keep you in their hearts.</p></div></div>`;
-    } else {
-      c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-circle-check" style="font-size:3.5rem;color:var(--primary);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px">See you there!</h3><p style="color:var(--mid);font-size:.9rem">Your RSVP has already been submitted. We can't wait to celebrate with you!</p></div></div>`;
+  // 1. Check localStorage first — fastest, per-device
+  try {
+    const saved = localStorage.getItem(RSVP_LS_KEY);
+    if (saved) {
+      const { attending } = JSON.parse(saved);
+      renderRSVPAlreadySubmitted(attending);
+      return;
     }
-  } else if (deadlinePassed) {
-    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (May 30, 2026) has passed.<br>Please reach out to Jonathan &amp; Maribel directly.</p></div></div>`;
-  } else {
-    c.innerHTML = `
-      <div class="rsvp-card">
-        <div class="rsvp-left">
-          <span class="script">Dear you,</span>
-          <p>you've been such an important part of our lives, it wouldn't feel right to start this new chapter without you by our side. Please take a moment to RSVP so we can prepare for your presence.</p>
-          <p class="deadline">Kindly respond on or before May 30, 2026</p>
-        </div>
-        <div class="rsvp-right">
-          <h3>RSVP</h3>
+  } catch (_) {}
 
-          <!-- Step 1: Attendance question -->
-          <div id="rsvp-step1">
-            <p class="rsvp-attend-q">Will you be joining us on our special day?</p>
-            <div class="rsvp-attend-btns">
-              <button class="btn-attend yes" onclick="rsvpAnswer('yes')">
-                <i class="fa-solid fa-heart"></i> Yes, I'll be there!
-              </button>
-              <button class="btn-attend no" onclick="rsvpAnswer('no')">
-                <i class="fa-solid fa-heart-crack"></i> Sorry, I can't
-              </button>
-            </div>
-          </div>
-
-          <!-- Step 2: Full form (shown only after "yes") -->
-          <div id="rsvp-step2" style="display:none">
-            <div class="form-group">
-              <label class="form-label">Number of guests attending</label>
-              <input type="number" class="form-control" id="num-guests" min="1" max="10" placeholder="Please input number of guests">
-            </div>
-            <div class="form-group" id="guest-names-wrap">
-              <label class="form-label">Names of guest/s</label>
-              <input type="text" class="form-control guest-name-input" placeholder="Please input names">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Wishes / Message for the couple</label>
-              <textarea class="form-control" id="rsvp-message" placeholder="Write your heartfelt message…"></textarea>
-            </div>
-            <button class="btn-primary" style="width:100%;justify-content:center" onclick="submitRSVP()">Submit RSVP</button>
-          </div>
-        </div>
-      </div>`;
-
-    document.getElementById('num-guests').addEventListener('input', function() {
-      const n = parseInt(this.value) || 1;
-      const wrap = document.getElementById('guest-names-wrap');
-      const lbl = wrap.querySelector('label');
-      wrap.innerHTML = ''; wrap.appendChild(lbl);
-      for (let i = 0; i < n; i++) {
-        const inp = document.createElement('input');
-        inp.type = 'text'; inp.className = 'form-control guest-name-input';
-        inp.placeholder = `Guest ${i+1} full name`; inp.style.marginBottom = '8px';
-        wrap.appendChild(inp);
-      }
-    });
+  // 2. Deadline check (no server call needed)
+  if (deadlinePassed) {
+    renderRSVPForm(c);
+    return;
   }
-}).catch(() => {
-  document.getElementById('rsvp-container').innerHTML = '<p style="color:rgba(184,208,227,.7);text-align:center">Could not load RSVP status. Please refresh.</p>';
-});
+
+  // 3. Server fallback — only checks IP, used when localStorage was cleared
+  fetch('/api/check_rsvp')
+    .then(r => r.json())
+    .then(data => {
+      if (data.submitted) {
+        try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: data.attending })); } catch (_) {}
+        renderRSVPAlreadySubmitted(data.attending);
+      }
+      // else: form is already in the HTML, nothing to do
+    })
+    .catch(() => {
+      // silently fail — form is still visible
+    });
+})();
 
 function rsvpAnswer(answer) {
   if (answer === 'yes') {
     document.getElementById('rsvp-step1').style.display = 'none';
     document.getElementById('rsvp-step2').style.display = 'block';
   } else {
-    // Submit "no" immediately, then show sad modal
     const deadline = new Date('2026-05-30T23:59:59+08:00');
     if (new Date() > deadline) {
       alert('We\'re sorry — the RSVP deadline has passed (May 30, 2026). Please contact the couple directly.');
@@ -929,7 +923,8 @@ function rsvpAnswer(answer) {
     })
       .then(r => r.json())
       .then(d => {
-        if (d.success || d.message?.includes('already')) {
+        if (d.success) {
+          try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: 'no' })); } catch (_) {}
           document.getElementById('sad-modal').classList.add('active');
         } else {
           alert(d.message || 'Something went wrong. Please try again.');
@@ -953,11 +948,29 @@ function submitRSVP() {
   const data = { attending: 'yes', num_guests: num, guest_names: JSON.stringify(names), message: msg };
   fetch('/api/submit_rsvp', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) })
     .then(r => r.json())
-    .then(d => { if (d.success) document.getElementById('success-modal').classList.add('active'); else alert(d.message || 'Something went wrong.'); })
+    .then(d => {
+      if (d.success) {
+        try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: 'yes' })); } catch (_) {}
+        document.getElementById('success-modal').classList.add('active');
+      } else if (d.duplicate_names && d.duplicate_names.length > 0) {
+        // Show the duplicate names modal
+        const list = document.getElementById('duplicate-names-list');
+        list.innerHTML = d.duplicate_names.map(n =>
+          `<li style="padding:6px 12px;margin-bottom:6px;background:#fdf0f0;border-left:3px solid #c0392b;border-radius:4px;font-weight:500;color:#c0392b">
+            <i class="fa-solid fa-user" style="margin-right:8px"></i>${n}
+          </li>`
+        ).join('');
+        document.getElementById('duplicate-modal').classList.add('active');
+      } else {
+        alert(d.message || 'Something went wrong.');
+      }
+    })
     .catch(() => alert('Network error. Please try again.'));
 }
+
 function closeModal() { document.getElementById('success-modal').classList.remove('active'); location.reload(); }
 function closeSadModal() { document.getElementById('sad-modal').classList.remove('active'); location.reload(); }
+function closeDuplicateModal() { document.getElementById('duplicate-modal').classList.remove('active'); }
 
 // ── Gallery ───────────────────────────────────────────────────────────────────
 // ↓↓↓ Add / remove Cloudinary URLs here. The gallery adapts automatically. ↓↓↓
