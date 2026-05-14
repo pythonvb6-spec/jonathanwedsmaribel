@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Admin — Jonathan &amp; Maribel Wedding</title>
+  <title>Admin — Johndy & Ianjean Wedding</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/admin.css">
   <link rel="icon" href="images/monogram.png">
@@ -14,7 +14,7 @@
 
 <nav id="sidebar">
   <div class="sidebar-logo">
-    <span class="script" style="font-family:'Quill Std','Cormorant Garamond',cursive;font-style:normal;font-size:1.4rem;color:#c9d89e">Jonathan &amp; Maribel</span>
+    <span class="script" style="font-family:'Quill Std','Cormorant Garamond',cursive;font-style:normal;font-size:1.4rem;color:#c9d89e">Johndy & Ianjean</span>
     <small>Wedding Admin</small>
   </div>
   <div class="sidebar-nav">
@@ -65,7 +65,7 @@
       </div>
     </div>
     <div class="countdown-card">
-      <h3>Counting down to May 8, 2026 · 1:30 PM</h3>
+      <h3>Counting down to June 12, 2026 · 3:00 PM</h3>
       <div class="cd-boxes">
         <div class="cd-box"><div class="cd-num" id="admin-cd-d">00</div><div class="cd-lbl">Days</div></div>
         <div class="cd-box"><div class="cd-num" id="admin-cd-h">00</div><div class="cd-lbl">Hours</div></div>
@@ -105,25 +105,14 @@
             <option value="2">2 Guests</option>
             <option value="3">3+ Guests</option>
           </select>
-          <select class="filter-select" id="filter-attending" onchange="filterRSVP()">
-            <option value="">All Responses</option>
-            <option value="yes">Attending ✓</option>
-            <option value="no">Declined ✗</option>
-          </select>
-          <select class="filter-select" id="sort-rsvp" onchange="filterRSVP()">
-            <option value="latest">Latest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="attending-yes">Attending: Yes First</option>
-            <option value="attending-no">Attending: No First</option>
-          </select>
           <button class="btn-export" onclick="exportToCSV()"><i class="fa-solid fa-file-excel"></i> Export</button>
         </div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Status</th><th>Guests</th><th>Names</th><th>Message</th><th>IP</th><th>Date</th></tr></thead>
+          <thead><tr><th>#</th><th>Guests</th><th>Names</th><th>Message</th><th>IP</th><th>Date</th></tr></thead>
           <tbody id="rsvp-table-body">
-            <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--mid)"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>
+            <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--mid)"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>
           </tbody>
         </table>
       </div>
@@ -133,14 +122,9 @@
 
   <!-- WISHES PAGE -->
   <div class="page-panel" id="page-wishes">
-    <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-      <div style="display:flex;align-items:center;gap:12px">
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400">Guest Wishes</h3>
-        <span id="wishes-count" style="font-size:.8rem;color:var(--mid)"></span>
-      </div>
-      <button class="btn-export" onclick="downloadAllImages()" id="btn-download-all" style="background:var(--tertiary)">
-        <i class="fa-solid fa-images"></i> Download All Gallery Images
-      </button>
+    <div style="margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400">Guest Wishes</h3>
+      <span id="wishes-count" style="font-size:.8rem;color:var(--mid)"></span>
     </div>
     <div class="wish-grid" id="wish-grid">
       <div style="text-align:center;padding:40px;color:var(--mid)"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>
@@ -160,7 +144,6 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 // ── Auth guard ────────────────────────────────────────────────────────────────
 fetch('/api/auth_check').then(r => r.json()).then(d => {
@@ -189,13 +172,13 @@ function showPage(page, event) {
   document.getElementById('page-title').textContent = pageTitles[page];
   if (event?.currentTarget) event.currentTarget.classList.add('active');
   closeSidebar();
-  if (page === 'rsvp')   loadRSVP();
-  if (page === 'wishes') loadWishes();
+  if (page === 'rsvp')    loadRSVP();
+  if (page === 'wishes')  loadWishes();
 }
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
 function updateCountdown() {
-  const diff = new Date('2026-05-08T13:30:00') - new Date();
+  const diff = new Date('2026-06-12T11:30:00') - new Date();
   if (diff <= 0) return;
   const d = Math.floor(diff/86400000);
   document.getElementById('admin-cd-d').textContent = String(d).padStart(2,'0');
@@ -221,8 +204,8 @@ function loadDashboard() {
     tbody.innerHTML = data.recent.map(r => `
       <tr>
         <td>${r.id}</td>
-        <td>${attendingBadge(r.attending)}</td>
-        <td style="max-width:180px;word-break:break-word">${escHtml(r.attending === false ? '—' : r.guest_names)}</td>
+        <td><span style="background:rgba(125,142,86,.1);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:500">${r.num_guests}</span></td>
+        <td style="max-width:180px;word-break:break-word">${escHtml(r.guest_names)}</td>
         <td style="white-space:nowrap;color:var(--mid);font-size:.8rem">${formatDate(r.submitted_at)}</td>
       </tr>`).join('');
   }).catch(() => {});
@@ -230,93 +213,57 @@ function loadDashboard() {
 
 // ── RSVP ──────────────────────────────────────────────────────────────────────
 let allRSVP = [];
-
 function loadRSVP() {
   fetch('/api/get_rsvp').then(r => r.json()).then(data => {
     allRSVP = data.rsvp || [];
-    filterRSVP();
+    renderRSVP(allRSVP);
   }).catch(() => {
-    document.getElementById('rsvp-table-body').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#e74c3c">Failed to load data.</td></tr>';
+    document.getElementById('rsvp-table-body').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#e74c3c">Failed to load data.</td></tr>';
   });
 }
-
-function filterRSVP() {
-  const q    = document.getElementById('search-rsvp').value.toLowerCase();
-  const gf   = document.getElementById('filter-guests').value;
-  const af   = document.getElementById('filter-attending').value;
-  const sort = document.getElementById('sort-rsvp').value;
-
-  let filtered = allRSVP.filter(r => {
-    const matchQ = !q || r.guest_names.toLowerCase().includes(q) || r.message?.toLowerCase().includes(q) || r.ip_address.includes(q);
-    const n = parseInt(r.num_guests);
-    const matchG = !gf || (gf === '3' ? n >= 3 : n === parseInt(gf));
-    const matchA = !af || (af === 'yes' ? r.attending !== false : r.attending === false);
-    return matchQ && matchG && matchA;
-  });
-
-  // Sort
-  filtered.sort((a, b) => {
-    if (sort === 'oldest')        return new Date(a.submitted_at) - new Date(b.submitted_at);
-    if (sort === 'attending-yes') return (b.attending === true ? 1 : 0) - (a.attending === true ? 1 : 0);
-    if (sort === 'attending-no')  return (b.attending === false ? 1 : 0) - (a.attending === false ? 1 : 0);
-    return new Date(b.submitted_at) - new Date(a.submitted_at); // latest (default)
-  });
-
-  renderRSVP(filtered);
-}
-
 function renderRSVP(rows) {
-  const tbody   = document.getElementById('rsvp-table-body');
+  const tbody = document.getElementById('rsvp-table-body');
   const countEl = document.getElementById('rsvp-count');
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--mid)">No RSVP responses found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--mid)">No RSVP responses yet.</td></tr>';
     countEl.textContent = ''; return;
   }
   tbody.innerHTML = rows.map(r => `
     <tr>
       <td style="color:var(--mid);font-size:.8rem">${r.id}</td>
-      <td>${attendingBadge(r.attending)}</td>
-      <td>${r.attending === false ? '<em style="color:var(--mid);font-size:.8rem">—</em>' : `<span style="background:rgba(125,142,86,.1);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:500">${r.num_guests}</span>`}</td>
-      <td style="max-width:200px;word-break:break-word;font-size:.875rem">${escHtml(r.attending === false ? '—' : r.guest_names)}</td>
+      <td><span style="background:rgba(125,142,86,.1);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:500">${r.num_guests}</span></td>
+      <td style="max-width:200px;word-break:break-word;font-size:.875rem">${escHtml(r.guest_names)}</td>
       <td style="max-width:200px;font-size:.8rem;color:var(--mid);word-break:break-word">${r.message ? escHtml(r.message.substring(0,80)) + (r.message.length > 80 ? '…' : '') : '<em>—</em>'}</td>
       <td style="font-size:.75rem;color:var(--mid)">${r.ip_address}</td>
       <td style="white-space:nowrap;font-size:.78rem;color:var(--mid)">${formatDate(r.submitted_at)}</td>
     </tr>`).join('');
-
-  const attending = rows.filter(r => r.attending !== false);
-  const total = attending.reduce((s, r) => s + parseInt(r.num_guests || 0), 0);
-  const declined = rows.filter(r => r.attending === false).length;
-  countEl.textContent = `Showing ${rows.length} response${rows.length!==1?'s':''} · ${attending.length} attending · ${declined} declined · ${total} total guest${total!==1?'s':''}`;
+  const total = rows.reduce((s, r) => s + parseInt(r.num_guests), 0);
+  countEl.textContent = `Showing ${rows.length} response${rows.length!==1?'s':''} · ${total} total guest${total!==1?'s':''}`;
 }
-
-function attendingBadge(attending) {
-  if (attending === false) {
-    return `<span style="background:rgba(180,80,80,.1);color:#b45252;padding:2px 10px;border-radius:20px;font-size:.78rem;font-weight:500;white-space:nowrap"><i class="fa-solid fa-xmark" style="margin-right:3px"></i>Declined</span>`;
-  }
-  return `<span style="background:rgba(107,142,176,.12);color:#4A6D8C;padding:2px 10px;border-radius:20px;font-size:.78rem;font-weight:500;white-space:nowrap"><i class="fa-solid fa-check" style="margin-right:3px"></i>Attending</span>`;
+function filterRSVP() {
+  const q = document.getElementById('search-rsvp').value.toLowerCase();
+  const gf = document.getElementById('filter-guests').value;
+  const filtered = allRSVP.filter(r => {
+    const matchQ = !q || r.guest_names.toLowerCase().includes(q) || r.message?.toLowerCase().includes(q) || r.ip_address.includes(q);
+    const n = parseInt(r.num_guests);
+    const matchG = !gf || (gf==='3' ? n>=3 : n===parseInt(gf));
+    return matchQ && matchG;
+  });
+  renderRSVP(filtered);
 }
 
 // ── Wishes ────────────────────────────────────────────────────────────────────
 function loadWishes() {
   fetch('/api/get_wishes').then(r => r.json()).then(data => {
     const wishes = data.wishes || [];
-    const grid   = document.getElementById('wish-grid');
+    const grid = document.getElementById('wish-grid');
     document.getElementById('wishes-count').textContent = `${wishes.length} message${wishes.length!==1?'s':''}`;
     if (!wishes.length) {
       grid.innerHTML = '<div style="text-align:center;padding:60px;color:var(--mid)"><i class="fa-regular fa-comment" style="font-size:2rem;display:block;margin-bottom:12px"></i>No messages yet.</div>';
       return;
     }
-    grid.innerHTML = wishes.map((w, idx) => `
-      <div class="wish-card" style="position:relative">
-        <button
-          class="wish-dl-btn"
-          title="Download as image"
-          onclick="downloadWish(${idx})"
-          data-name="${escHtml(w.guest_names.split(',')[0].trim())}"
-          data-msg="${escHtml(w.message)}"
-          data-date="${escHtml(formatDate(w.submitted_at))}">
-          <i class="fa-solid fa-download"></i>
-        </button>
+    grid.innerHTML = wishes.map(w => `
+      <div class="wish-card">
         <div class="wish-name"><i class="fa-solid fa-user-pen" style="margin-right:6px;font-size:.8rem"></i>${escHtml(w.guest_names.split(',')[0].trim())}</div>
         <div class="wish-date">${formatDate(w.submitted_at)}</div>
         <div class="wish-msg">"${escHtml(w.message)}"</div>
@@ -324,147 +271,15 @@ function loadWishes() {
   }).catch(() => {});
 }
 
-// ── Download wish as JPG ──────────────────────────────────────────────────────
-function downloadWish(idx) {
-  const btn  = document.querySelectorAll('.wish-dl-btn')[idx];
-  const name = btn.dataset.name;
-  const msg  = btn.dataset.msg.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"');
-  const date = btn.dataset.date;
-
-  const W = 800, H = 500;
-  const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  // Background gradient
-  const grad = ctx.createLinearGradient(0, 0, W, H);
-  grad.addColorStop(0, '#1a1a12');
-  grad.addColorStop(1, '#2c2c1e');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-
-  // Decorative border
-  ctx.strokeStyle = 'rgba(184,208,227,0.2)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(24, 24, W - 48, H - 48);
-
-  // Corner accents
-  const cSize = 20, cPad = 24;
-  ctx.strokeStyle = 'rgba(166,124,82,0.6)';
-  ctx.lineWidth = 1.5;
-  [[cPad,cPad,'right','down'],[W-cPad,cPad,'left','down'],[cPad,H-cPad,'right','up'],[W-cPad,H-cPad,'left','up']].forEach(([x,y,h,v]) => {
-    ctx.beginPath();
-    ctx.moveTo(x + (h==='right'?cSize:-cSize), y);
-    ctx.lineTo(x, y);
-    ctx.lineTo(x, y + (v==='down'?cSize:-cSize));
-    ctx.stroke();
-  });
-
-  // Header label
-  ctx.fillStyle = 'rgba(184,208,227,0.5)';
-  ctx.font = '500 11px Jost, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('WEDDING WISH', W/2, 72);
-
-  // Divider line
-  ctx.strokeStyle = 'rgba(184,208,227,0.15)';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(W/2 - 60, 84); ctx.lineTo(W/2 + 60, 84); ctx.stroke();
-
-  // Message text (word-wrap)
-  ctx.fillStyle = '#f8f5ec';
-  ctx.font = 'italic 26px Georgia, serif';
-  ctx.textAlign = 'center';
-  const maxW = W - 120;
-  const words = ('"' + msg + '"').split(' ');
-  let line = '', lines = [];
-  words.forEach(word => {
-    const test = line ? line + ' ' + word : word;
-    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = word; }
-    else line = test;
-  });
-  if (line) lines.push(line);
-  const lineH = 38, totalH = lines.length * lineH;
-  const startY = (H - totalH) / 2 + 10;
-  lines.forEach((l, i) => ctx.fillText(l, W/2, startY + i * lineH));
-
-  // Author
-  ctx.fillStyle = 'rgba(184,208,227,0.7)';
-  ctx.font = '500 14px Jost, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('— ' + name, W/2, H - 80);
-
-  // Date
-  ctx.fillStyle = 'rgba(184,208,227,0.35)';
-  ctx.font = '12px Jost, sans-serif';
-  ctx.fillText(date, W/2, H - 60);
-
-  // Branding
-  ctx.fillStyle = 'rgba(166,124,82,0.5)';
-  ctx.font = '11px Jost, sans-serif';
-  ctx.fillText('JONATHAN & MARIBEL · MAY 8, 2026', W/2, H - 38);
-
-  // Download
-  const a = document.createElement('a');
-  a.href     = canvas.toDataURL('image/jpeg', 0.92);
-  a.download = 'wish_' + name.replace(/\s+/g,'_') + '.jpg';
-  a.click();
-}
-
-// ── Download all gallery images as ZIP ────────────────────────────────────────
-const galleryFiles = [
-  'images/gallery/photo1.jpg',  'images/gallery/photo2.jpg',  'images/gallery/photo3.jpg',
-  'images/gallery/photo4.jpg',  'images/gallery/photo5.jpg',  'images/gallery/photo6.jpg',
-  'images/gallery/photo7.jpg',  'images/gallery/photo8.jpg',  'images/gallery/photo9.jpg',
-  'images/gallery/photo10.jpg', 'images/gallery/photo11.jpg', 'images/gallery/photo12.jpg',
-  'images/gallery/photo13.jpg', 'images/gallery/photo14.jpg', 'images/gallery/photo15.jpg',
-  'images/gallery/photo16.jpg', 'images/gallery/photo17.jpg',
-];
-
-async function downloadAllImages() {
-  const btn = document.getElementById('btn-download-all');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Packaging…';
-  try {
-    const zip = new JSZip();
-    const folder = zip.folder('gallery_jonathan_maribel');
-    await Promise.all(galleryFiles.map(async path => {
-      const res  = await fetch('/' + path);
-      const blob = await res.blob();
-      folder.file(path.split('/').pop(), blob);
-    }));
-    const content = await zip.generateAsync({ type: 'blob' });
-    const a = document.createElement('a');
-    a.href     = URL.createObjectURL(content);
-    a.download = 'gallery_jonathan_maribel_' + new Date().toISOString().split('T')[0] + '.zip';
-    a.click();
-    URL.revokeObjectURL(a.href);
-  } catch (err) {
-    console.error(err);
-    alert('Download failed. Please try again.');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-images"></i> Download All Gallery Images';
-  }
-}
-
 // ── Export CSV ────────────────────────────────────────────────────────────────
 function exportToCSV() {
   if (!allRSVP.length) { alert('No data to export.'); return; }
-  const headers = ['ID','Attending','Guests','Names','Message','IP','Date'];
-  const rows = allRSVP.map(r => [
-    r.id,
-    r.attending === false ? 'No' : 'Yes',
-    r.num_guests,
-    '"' + (r.guest_names||'').replace(/"/g,'""') + '"',
-    '"' + (r.message||'').replace(/"/g,'""') + '"',
-    r.ip_address,
-    r.submitted_at
-  ]);
+  const headers = ['ID','Guests','Names','Message','IP','Date'];
+  const rows = allRSVP.map(r => [r.id, r.num_guests, `"${r.guest_names.replace(/"/g,'""')}"`, `"${(r.message||'').replace(/"/g,'""')}"`, r.ip_address, r.submitted_at]);
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = 'rsvp_responses_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.download = `rsvp_responses_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
 }
 
@@ -480,8 +295,8 @@ function formatDate(str) { return new Date(str).toLocaleDateString('en-US', { mo
 // ── Auto-refresh ──────────────────────────────────────────────────────────────
 setInterval(() => {
   const active = document.querySelector('.page-panel.active');
-  if (active?.id === 'page-rsvp')      loadRSVP();
-  if (active?.id === 'page-wishes')    loadWishes();
+  if (active?.id === 'page-rsvp')    loadRSVP();
+  if (active?.id === 'page-wishes')  loadWishes();
   if (active?.id === 'page-dashboard') loadDashboard();
 }, 30000);
 </script>

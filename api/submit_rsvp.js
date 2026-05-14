@@ -30,34 +30,11 @@ export default async function handler(req, res) {
     });
   }
 
+  // Parse body (Vercel parses JSON & urlencoded automatically)
   const body = req.body || {};
-  const attending = body.attending !== false && body.attending !== 'false';
-
-  // ── Declined ─────────────────────────────────────────────────────────────────
-  if (!attending) {
-    const { error } = await supabase.from('rsvp').insert({
-      ip_address:  ip,
-      attending:   false,
-      num_guests:  0,
-      guest_names: 'Declined',
-      message:     null
-    });
-
-    if (error) {
-      if (error.code === '23505') {
-        return res.status(200).json({ success: false, message: 'You have already submitted an RSVP.' });
-      }
-      console.error('Supabase insert error:', error);
-      return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
-    }
-
-    return res.status(200).json({ success: true, attending: false });
-  }
-
-  // ── Attending ─────────────────────────────────────────────────────────────────
-  const numGuests     = parseInt(body.num_guests ?? 0);
+  const numGuests    = parseInt(body.num_guests ?? 0);
   const guestNamesRaw = body.guest_names ?? '';
-  const message       = (body.message ?? '').trim();
+  const message      = (body.message ?? '').trim();
 
   if (numGuests < 1 || numGuests > 20) {
     return res.status(200).json({ success: false, message: 'Invalid number of guests.' });
@@ -85,21 +62,21 @@ export default async function handler(req, res) {
 
   const guestNamesStr = guestNames.join(', ');
 
+  // Insert
   const { error } = await supabase.from('rsvp').insert({
     ip_address:  ip,
-    attending:   true,
     num_guests:  numGuests,
     guest_names: guestNamesStr,
     message:     message || null
   });
 
   if (error) {
-    if (error.code === '23505') {
+    if (error.code === '23505') { // unique violation
       return res.status(200).json({ success: false, message: 'You have already submitted an RSVP.' });
     }
     console.error('Supabase insert error:', error);
     return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
   }
 
-  return res.status(200).json({ success: true, attending: true, message: 'RSVP submitted successfully!' });
+  return res.status(200).json({ success: true, message: 'RSVP submitted successfully!' });
 }
