@@ -415,39 +415,39 @@
     <!-- Slides 2-10: lazy-loaded + Cloudinary optimized -->
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710046/hero2_jcldya.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710042/hero3_hobox0.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710048/hero4_iuxut4.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710045/hero5_sklp7h.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710050/hero6_lf1k6w.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710048/hero7_slkjku.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710051/hero8_wnvot9.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710056/hero9_o3ouk6.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
     <div class="hero-slide">
       <img data-src="https://res.cloudinary.com/dm9yv1jnc/image/upload/w_1200,q_auto,f_auto/v1778710042/hero10_bott3z.jpg"
-           src="" alt="Jonathan & Maribel" loading="lazy" onerror="this.style.display='none'">
+           alt="Jonathan & Maribel" onerror="this.style.display='none'">
     </div>
 
     <!-- Text overlay (same content as before) -->
@@ -1384,7 +1384,7 @@ vcInit('vc-reception', 5);
   // Slide 1 is already loaded (eager in HTML). Slides 2-10 have data-src only.
   function loadSlide(idx) {
     const img = slides[idx]?.querySelector('img[data-src]');
-    if (img && img.getAttribute('src') === '') {
+    if (img && !img.getAttribute('src')) {
       img.src = img.dataset.src;
     }
   }
