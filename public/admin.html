@@ -126,7 +126,7 @@
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Attending</th><th>Guests</th><th>Names</th><th>Message</th><th>IP</th><th>Date</th></tr></thead>
+          <thead><tr><th>#</th><th>Attending</th><th>Guests</th><th>Names</th><th>Message</th><th>Date</th></tr></thead>
           <tbody id="rsvp-table-body">
             <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--mid)"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>
           </tbody>
@@ -260,7 +260,6 @@ function renderRSVP(rows) {
       <td><span style="background:rgba(125,142,86,.1);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:500">${r.num_guests}</span></td>
       <td style="max-width:200px;word-break:break-word;font-size:.875rem">${escHtml(r.guest_names || '—')}</td>
       <td style="max-width:200px;font-size:.8rem;color:var(--mid);word-break:break-word">${r.message ? escHtml(r.message.substring(0,80)) + (r.message.length > 80 ? '…' : '') : '<em>—</em>'}</td>
-      <td style="font-size:.75rem;color:var(--mid)">${r.ip_address}</td>
       <td style="white-space:nowrap;font-size:.78rem;color:var(--mid)">${formatDate(r.submitted_at)}</td>
     </tr>`).join('');
   const attending = rows.filter(r => r.attending === 'yes');
@@ -276,8 +275,7 @@ function filterRSVP() {
   let filtered = allRSVP.filter(r => {
     const matchQ = !q ||
       (r.guest_names || '').toLowerCase().includes(q) ||
-      (r.message || '').toLowerCase().includes(q) ||
-      r.ip_address.includes(q);
+      (r.message || '').toLowerCase().includes(q);
     const n = parseInt(r.num_guests || 0);
     const matchG = !gf || (gf === '3' ? n >= 3 : n === parseInt(gf));
     return matchQ && matchG;
@@ -466,14 +464,13 @@ function fillRoundRect(ctx, x, y, w, h, r) {
 // ── Export CSV ────────────────────────────────────────────────────────────────
 function exportToCSV() {
   if (!allRSVP.length) { alert('No data to export.'); return; }
-  const headers = ['ID','Attending','Guests','Names','Message','IP','Date'];
+  const headers = ['ID','Attending','Guests','Names','Message','Date'];
   const rows = allRSVP.map(r => [
     r.id,
     r.attending || 'yes',
     r.num_guests,
     `"${(r.guest_names||'').replace(/"/g,'""')}"`,
     `"${(r.message||'').replace(/"/g,'""')}"`,
-    r.ip_address,
     r.submitted_at
   ]);
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
