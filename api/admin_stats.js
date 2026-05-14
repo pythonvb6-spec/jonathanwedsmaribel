@@ -15,9 +15,16 @@ export default async function handler(req, res) {
   const { count: totalRSVP } = await supabase
     .from('rsvp').select('*', { count: 'exact', head: true });
 
-  // Total guests (sum of num_guests)
+  // Attending yes / no counts
+  const { count: attendingYes } = await supabase
+    .from('rsvp').select('*', { count: 'exact', head: true }).eq('attending', 'yes');
+
+  const { count: attendingNo } = await supabase
+    .from('rsvp').select('*', { count: 'exact', head: true }).eq('attending', 'no');
+
+  // Total guests (sum of num_guests — only for yes RSVPs)
   const { data: guestData } = await supabase
-    .from('rsvp').select('num_guests');
+    .from('rsvp').select('num_guests').eq('attending', 'yes');
   const totalGuests = (guestData || []).reduce((s, r) => s + (r.num_guests || 0), 0);
 
   // Total wishes
@@ -36,9 +43,11 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     success: true,
-    totalRSVP:   totalRSVP   ?? 0,
-    totalGuests: totalGuests ?? 0,
-    totalWishes: totalWishes ?? 0,
-    recent:      recent      ?? []
+    totalRSVP:    totalRSVP    ?? 0,
+    attendingYes: attendingYes ?? 0,
+    attendingNo:  attendingNo  ?? 0,
+    totalGuests:  totalGuests  ?? 0,
+    totalWishes:  totalWishes  ?? 0,
+    recent:       recent       ?? []
   });
 }

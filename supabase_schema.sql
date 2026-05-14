@@ -7,11 +7,17 @@
 CREATE TABLE IF NOT EXISTS rsvp (
     id SERIAL PRIMARY KEY,
     ip_address VARCHAR(45) NOT NULL UNIQUE,
-    num_guests INT NOT NULL DEFAULT 1,
-    guest_names TEXT NOT NULL,
+    attending VARCHAR(3) NOT NULL DEFAULT 'yes',  -- 'yes' or 'no'
+    num_guests INT NOT NULL DEFAULT 0,
+    guest_names TEXT,                              -- nullable for 'no' responses
     message TEXT,
     submitted_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- If the table already exists, run these to add the attending column:
+-- ALTER TABLE rsvp ADD COLUMN IF NOT EXISTS attending VARCHAR(3) NOT NULL DEFAULT 'yes';
+-- ALTER TABLE rsvp ALTER COLUMN guest_names DROP NOT NULL;
+-- ALTER TABLE rsvp ALTER COLUMN num_guests SET DEFAULT 0;
 
 -- Admin users table
 CREATE TABLE IF NOT EXISTS admin_users (
