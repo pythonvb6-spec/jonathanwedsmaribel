@@ -29,7 +29,11 @@ export default async function handler(req, res) {
     });
 
     if (error) {
-      console.error('Supabase insert error:', error);
+      // 23505 = unique_violation (IP already recorded — that's fine, just return success)
+      if (error.code === '23505') {
+        return res.status(200).json({ success: true, attending: 'no' });
+      }
+      console.error('Supabase insert error (no):', error);
       return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
     }
 
@@ -102,7 +106,17 @@ export default async function handler(req, res) {
   });
 
   if (error) {
-    console.error('Supabase insert error:', error);
+    // 23505 = unique_violation: same IP already submitted "yes" from this network.
+    // This happens when two different guests share one public IP (same WiFi).
+    // The second guest's localStorage is empty so the form shows, but the DB
+    // blocks the insert. Return a clear, friendly message instead of a 500.
+    if (error.code === '23505') {
+      return res.status(200).json({
+        success: false,
+        message: 'It looks like an RSVP has already been submitted from your network. If you haven\'t submitted yet, please contact Jonathan & Maribel directly.'
+      });
+    }
+    console.error('Supabase insert error (yes):', error);
     return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
   }
 

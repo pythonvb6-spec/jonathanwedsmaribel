@@ -864,10 +864,17 @@
 const leftPanel = document.getElementById('curtain-intro-left');
 const rightPanel = document.getElementById('curtain-intro-right');
 if (document.referrer.includes('index.html') || document.referrer.endsWith('/')) {
-  window.addEventListener('load', () => {
-    setTimeout(() => { leftPanel.classList.add('open'); rightPanel.classList.add('open'); }, 120);
-    setTimeout(() => { leftPanel.style.display = 'none'; rightPanel.style.display = 'none'; }, 1500);
-  });
+  // FIX: was window 'load' which waited for ALL Cloudinary images to download.
+  // DOMContentLoaded fires as soon as HTML is parsed — instant curtain open.
+  const openCurtain = () => {
+    setTimeout(() => { leftPanel.classList.add('open'); rightPanel.classList.add('open'); }, 80);
+    setTimeout(() => { leftPanel.classList.add('hidden'); rightPanel.classList.add('hidden'); }, 1450);
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', openCurtain);
+  } else {
+    openCurtain();
+  }
 } else {
   leftPanel.classList.add('hidden'); rightPanel.classList.add('hidden');
 }
@@ -957,26 +964,20 @@ function rsvpAnswer(answer) {
     document.getElementById('rsvp-step1').style.display = 'none';
     document.getElementById('rsvp-step2').style.display = 'block';
   } else {
-    const deadline = new Date('2026-05-30T23:59:59+08:00');
-    if (new Date() > deadline) {
-      alert('We\'re sorry — the RSVP deadline has passed (May 30, 2026). Please contact the couple directly.');
-      return;
-    }
+    // "No" path: show the sad modal immediately — don't make the guest
+    // wait on a server round-trip. Set localStorage right now so same-device
+    // protection kicks in instantly. The server record is written in the background.
+    try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: 'no' })); } catch (_) {}
+    document.getElementById('sad-modal').classList.add('active');
+
+    // Fire-and-forget: record the decline on the server.
+    // If it fails (network, duplicate IP, etc.) the guest already got the
+    // correct UX — localStorage is the source of truth for same-device gate.
     fetch('/api/submit_rsvp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ attending: 'no' })
-    })
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) {
-          try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: 'no' })); } catch (_) {}
-          document.getElementById('sad-modal').classList.add('active');
-        } else {
-          alert(d.message || 'Something went wrong. Please try again.');
-        }
-      })
-      .catch(() => alert('Network error. Please try again.'));
+    }).catch(() => { /* silent — localStorage already set */ });
   }
 }
 
