@@ -463,6 +463,59 @@ tr:hover td { background: rgba(125,142,86,0.03); }
   .page-panel { padding: 16px; }
 }
 
+
+/* ===== ATTENDING BADGES ===== */
+.badge-yes {
+  display: inline-block;
+  background: rgba(94,108,62,0.12);
+  color: #5e6c3e;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-no {
+  display: inline-block;
+  background: rgba(192,57,43,0.10);
+  color: #c0392b;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ===== WISH CARD — updated for download button ===== */
+.wish-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.wish-dl-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(125,142,86,0.25);
+  background: rgba(125,142,86,0.07);
+  color: var(--primary);
+  font-size: 0.78rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.wish-dl-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
 @media (max-width: 400px) {
   .stat-grid { grid-template-columns: 1fr 1fr; }
   .cd-box { min-width: 50px; padding: 10px 10px; }
