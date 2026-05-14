@@ -209,8 +209,8 @@
     .qr-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
     .qr-btn:active { transform: translateY(0); }
     .qr-btn-gcash  { background: #0033a0; color: #fff; }
-    .qr-btn-maya   { background: #00b388; color: #fff; }
-    .qr-btn-landbank { background: #c8102e; color: #fff; }
+    .qr-btn-maya   { background: #0033a0; color: #FFB414; }
+    .qr-btn-landbank { background: #F79827; color: #2D2D2D; }
     .qr-btn i { font-size: 0.85rem; }
 
     /* ── QR Modal ────────────────────────────────────────────────────────────── */
@@ -273,8 +273,8 @@
       margin-bottom: 20px;
     }
     .badge-gcash    { background: #e8eef8; color: #0033a0; }
-    .badge-maya     { background: #e0f5f0; color: #00916a; }
-    .badge-landbank { background: #fdecea; color: #a50e24; }
+    .badge-maya     { background: #E8EEF8; color: #0033a0; }
+    .badge-landbank { background: #fdecea; color: #F79827; }
     .qr-modal-img-wrap {
       width: 220px;
       height: 220px;
@@ -550,8 +550,8 @@
       <div class="sponsors-grid">
         <div>
           <div style="font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--tertiary);margin-bottom:8px;font-weight:500">Veil</div>
-          <div class="sponsor-row">Joann Villalba Vinluan</div>
           <div class="sponsor-row">Melchor R. Vinluan Jr.</div>
+          <div class="sponsor-row">Joann Villalba Vinluan</div>
         </div>
         <div>
           <div style="font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--tertiary);margin-bottom:8px;font-weight:500">Candle</div>
@@ -562,8 +562,8 @@
       <div class="sponsors-grid" style="margin-top:12px">
         <div>
           <div style="font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--tertiary);margin-bottom:8px;font-weight:500">Cord</div>
-          <div class="sponsor-row">Melanie Fernandez Villalba</div>
           <div class="sponsor-row">Jayson Vinluan Villalba</div>
+          <div class="sponsor-row">Melanie Fernandez Villalba</div>
         </div>
         <div>
           <div style="font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--tertiary);margin-bottom:8px;font-weight:500">Ring Bearer</div>
@@ -759,7 +759,7 @@
             <i class="fa-solid fa-qrcode"></i> GCash
           </button>
           <button class="qr-btn qr-btn-maya" onclick="openQR('maya')">
-            <i class="fa-solid fa-qrcode"></i> Maya
+            <i class="fa-solid fa-qrcode"></i> BDO
           </button>
           <button class="qr-btn qr-btn-landbank" onclick="openQR('landbank')">
             <i class="fa-solid fa-qrcode"></i> Landbank
@@ -1188,17 +1188,17 @@ document.querySelectorAll('a[href="our-story.html"]').forEach(a => { a.addEventL
 // ── QR Modal ──────────────────────────────────────────────────────────────────
 const QR_CONFIG = {
   gcash: {
-    img:   'images/qr/gcash.jpg',
+    img:   'images/qr/gcashqr.jpg',
     label: 'GCash',
     badge: 'badge-gcash',
   },
   maya: {
-    img:   'images/qr/maya.jpg',
-    label: 'Maya',
+    img:   'images/qr/bdoqr.jpg',
+    label: 'BDO',
     badge: 'badge-maya',
   },
   landbank: {
-    img:   'images/qr/landbank.jpg',
+    img:   'images/qr/unionqr.jpg',
     label: 'Landbank',
     badge: 'badge-landbank',
   },
