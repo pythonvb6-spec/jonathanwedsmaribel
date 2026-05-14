@@ -875,7 +875,10 @@ function renderRSVPForm(c) {
   const rsvpDeadline = new Date('2026-05-30T23:59:59+08:00');
   const deadlinePassed = new Date() > rsvpDeadline;
 
-  // 1. Check localStorage first — fastest, per-device
+  // Check localStorage — this is the ONLY same-device check.
+  // We intentionally do NOT call the server here because all guests
+  // on the same WiFi/network share one public IP, which would cause
+  // the server to incorrectly block them after the first person submits.
   try {
     const saved = localStorage.getItem(RSVP_LS_KEY);
     if (saved) {
@@ -885,25 +888,13 @@ function renderRSVPForm(c) {
     }
   } catch (_) {}
 
-  // 2. Deadline check (no server call needed)
+  // Deadline check
   if (deadlinePassed) {
     renderRSVPForm(c);
     return;
   }
 
-  // 3. Server fallback — only checks IP, used when localStorage was cleared
-  fetch('/api/check_rsvp')
-    .then(r => r.json())
-    .then(data => {
-      if (data.submitted) {
-        try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: data.attending })); } catch (_) {}
-        renderRSVPAlreadySubmitted(data.attending);
-      }
-      // else: form is already in the HTML, nothing to do
-    })
-    .catch(() => {
-      // silently fail — form is still visible
-    });
+  // No localStorage entry = fresh device, show the form (already in HTML)
 })();
 
 function rsvpAnswer(answer) {
