@@ -129,40 +129,57 @@
 
     .wax-seal-btn {
       display: inline-flex; flex-direction: column;
-      align-items: center; gap: 12px;
+      align-items: center; gap: 14px;
       background: none; border: none; cursor: pointer;
       animation: fadeUp 1s 0.8s both;
       transition: transform 0.3s ease;
     }
     .wax-seal-btn:hover { transform: scale(1.05); }
     .wax-seal-btn:hover .seal-circle {
-      box-shadow: 0 12px 40px rgba(180,30,30,0.5), 0 0 0 4px rgba(180,30,30,0.15);
-    }
-    .seal-circle {
-      width: 88px; height: 88px;
-      background: radial-gradient(circle at 35% 35%, #e05555, #b91c1c 50%, #7f1d1d);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
       box-shadow:
-        0 8px 28px rgba(180,30,30,0.45),
-        0 0 0 2px rgba(255,255,255,0.3),
-        inset 0 -2px 6px rgba(0,0,0,0.2),
-        inset 0 2px 6px rgba(255,255,255,0.2);
-      position: relative; transition: box-shadow 0.3s ease;
+        0 0 0 3px rgba(166,124,82,0.55),
+        0 0 0 7px rgba(166,124,82,0.15),
+        0 16px 48px rgba(0,0,0,0.38);
     }
-    .seal-circle::before {
-      content: ''; position: absolute; inset: -3px; border-radius: 50%;
-      background: repeating-conic-gradient(rgba(180,30,30,0.6) 0deg, transparent 5deg, transparent 15deg);
-      z-index: -1;
+    .wax-seal-btn:active { transform: scale(0.97); }
+    .seal-circle {
+      width: 100px; height: 100px;
+      border-radius: 50%; overflow: hidden;
+      box-shadow:
+        0 0 0 2px rgba(166,124,82,0.35),
+        0 0 0 5px rgba(166,124,82,0.1),
+        0 10px 32px rgba(0,0,0,0.28);
+      transition: box-shadow 0.3s ease;
     }
-    .seal-initials {
-      font-family: 'Quill Std', 'Great Vibes', cursive;
-      font-size: 1.8rem; color: rgba(255,255,255,0.95);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.2); letter-spacing: 0.05em;
+    .seal-circle img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
     }
     .seal-tap-text {
       font-family: 'Jost', sans-serif; font-size: 0.65rem;
       letter-spacing: 0.2em; text-transform: uppercase; color: #A67C52;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .seal-tap-text::before, .seal-tap-text::after {
+      content: ''; display: block; width: 22px; height: 1px;
+      background: rgba(166,124,82,0.45);
+    }
+
+    @keyframes pulseRing {
+      0%   { transform: scale(1);    opacity: 0.55; }
+      70%  { transform: scale(1.28); opacity: 0; }
+      100% { transform: scale(1.28); opacity: 0; }
+    }
+    .seal-circle {
+      position: relative;
+    }
+    .seal-circle::after {
+      content: '';
+      position: absolute; inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(166,124,82,0.6);
+      animation: pulseRing 2.2s ease-out infinite;
+      pointer-events: none;
     }
 
     @keyframes fadeUp {
@@ -242,7 +259,7 @@
 
   <button class="wax-seal-btn" onclick="openInvitation()">
     <div class="seal-circle">
-      <span class="seal-initials">J&M</span>
+      <img src="images/monogram circle.png" alt="J&M monogram">
     </div>
     <span class="seal-tap-text">Tap to open</span>
   </button>
