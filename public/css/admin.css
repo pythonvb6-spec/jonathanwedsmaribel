@@ -468,30 +468,3 @@ tr:hover td { background: rgba(125,142,86,0.03); }
   .cd-box { min-width: 50px; padding: 10px 10px; }
   .cd-num { font-size: 1.6rem; }
 }
-
-/* ===== WISH DOWNLOAD BUTTON ===== */
-.wish-dl-btn {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 30px;
-  height: 30px;
-  background: rgba(125,142,86,0.1);
-  border: 1px solid rgba(125,142,86,0.25);
-  border-radius: 7px;
-  color: var(--primary);
-  font-size: 0.78rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 2;
-}
-.wish-dl-btn:hover {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-  transform: scale(1.08);
-}
-.wish-card .wish-name { padding-left: 40px; }
