@@ -20,11 +20,23 @@ export default async function handler(req, res) {
 
   // ── "No" RSVP ──────────────────────────────────────────────────────────────
   if (attending === 'no') {
+    // Accept optional guest name so admin can see who declined
+    let guestName = null;
+    const rawNames = body.guest_names;
+    if (rawNames) {
+      try {
+        const parsed = JSON.parse(rawNames);
+        if (Array.isArray(parsed) && parsed[0]) {
+          guestName = String(parsed[0]).trim().replace(/[<>"'&]/g, '') || null;
+        }
+      } catch { /* ignore malformed */ }
+    }
+
     const { error } = await supabase.from('rsvp').insert({
       ip_address:  ip,
       attending:   'no',
       num_guests:  0,
-      guest_names: null,
+      guest_names: guestName,
       message:     null
     });
 

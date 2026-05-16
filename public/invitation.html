@@ -802,6 +802,18 @@
           </div>
         </div>
 
+        <!-- Step 2 (No): Ask for name before declining -->
+        <div id="rsvp-step2-no" style="display:none;animation:rsvpFadeUp .4s ease">
+          <p class="rsvp-attend-q" style="margin-bottom:16px">We're sorry you can't make it. May we know your name so we can note your response?</p>
+          <div class="form-group">
+            <label class="form-label">Your Name</label>
+            <input type="text" class="form-control" id="no-guest-name" placeholder="Your full name">
+          </div>
+          <button class="btn-primary" style="width:100%;justify-content:center" onclick="submitNoRSVP()">
+            <i class="fa-solid fa-heart-crack"></i> Send My Regrets
+          </button>
+        </div>
+
         <!-- Step 2: Full form (shown only after "yes") -->
         <div id="rsvp-step2" style="display:none">
           <div class="form-group">
@@ -1018,24 +1030,38 @@ function rsvpAnswer(answer) {
     document.getElementById('rsvp-step1').style.display = 'none';
     document.getElementById('rsvp-step2').style.display = 'block';
   } else {
-    // "No" path: show the sad modal immediately — don't make the guest
-    // wait on a server round-trip. Set localStorage right now so same-device
-    // protection kicks in instantly. The server record is written in the background.
-    try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: 'no' })); } catch (_) {}
-    document.getElementById('sad-modal').classList.add('active');
-
-    // Fire-and-forget: record the decline on the server.
-    // If it fails (network, duplicate IP, etc.) the guest already got the
-    // correct UX — localStorage is the source of truth for same-device gate.
-    fetch('/api/submit_rsvp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ attending: 'no' })
-    }).catch(() => { /* silent — localStorage already set */ });
+    // "No" path: ask for the guest's name first so admin sees who declined.
+    document.getElementById('rsvp-step1').style.display = 'none';
+    document.getElementById('rsvp-step2-no').style.display = 'block';
   }
 }
 
+let noRsvpSubmitting = false;
+function submitNoRSVP() {
+  if (noRsvpSubmitting) return;
+  const nameInput = document.getElementById('no-guest-name');
+  const name = nameInput ? nameInput.value.trim() : '';
+  if (!name) { nameInput.style.borderColor = '#c0392b'; nameInput.focus(); return; }
+  nameInput.style.borderColor = '';
+
+  noRsvpSubmitting = true;
+  const btn = document.querySelector('#rsvp-step2-no .btn-primary');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending…'; }
+
+  // Set localStorage immediately so same-device gate kicks in.
+  try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: 'no' })); } catch (_) {}
+  document.getElementById('sad-modal').classList.add('active');
+
+  fetch('/api/submit_rsvp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ attending: 'no', guest_names: JSON.stringify([name]), num_guests: 0 })
+  }).catch(() => { /* silent — localStorage already set */ });
+}
+
+let rsvpSubmitting = false;
 function submitRSVP() {
+  if (rsvpSubmitting) return;
   const deadline = new Date('2026-05-30T23:59:59+08:00');
   if (new Date() > deadline) {
     alert('We\'re sorry — the RSVP deadline has passed (May 30, 2026). Please contact the couple directly.');
@@ -1047,6 +1073,9 @@ function submitRSVP() {
   if (!num || num < 1) { alert('Please enter number of guests.'); return; }
   if (names.length < num) { alert('Please fill in all guest names.'); return; }
   const data = { attending: 'yes', num_guests: num, guest_names: JSON.stringify(names), message: msg };
+  rsvpSubmitting = true;
+  const submitBtn = document.querySelector('#rsvp-step2 .btn-primary');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting…'; }
   fetch('/api/submit_rsvp', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) })
     .then(r => r.json())
     .then(d => {
@@ -1054,6 +1083,8 @@ function submitRSVP() {
         try { localStorage.setItem(RSVP_LS_KEY, JSON.stringify({ attending: 'yes' })); } catch (_) {}
         document.getElementById('success-modal').classList.add('active');
       } else if (d.duplicate_names && d.duplicate_names.length > 0) {
+        rsvpSubmitting = false;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'Submit RSVP'; }
         // Show the duplicate names modal
         const list = document.getElementById('duplicate-names-list');
         list.innerHTML = d.duplicate_names.map(n =>
@@ -1063,10 +1094,16 @@ function submitRSVP() {
         ).join('');
         document.getElementById('duplicate-modal').classList.add('active');
       } else {
+        rsvpSubmitting = false;
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'Submit RSVP'; }
         alert(d.message || 'Something went wrong.');
       }
     })
-    .catch(() => alert('Network error. Please try again.'));
+    .catch(() => {
+      rsvpSubmitting = false;
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'Submit RSVP'; }
+      alert('Network error. Please try again.');
+    });
 }
 
 function closeModal() { document.getElementById('success-modal').classList.remove('active'); location.reload(); }
