@@ -1,4 +1,3 @@
-cat > /home/claude/jonathanwedsmaribel-updated/api/notify.js << 'JSEOF'
 // api/notify.js
 // Sends a "plus-one removed" notification to a guest via Gmail and/or SMS (HttpSms).
 //
@@ -6,12 +5,11 @@ cat > /home/claude/jonathanwedsmaribel-updated/api/notify.js << 'JSEOF'
 //   GMAIL_USER          - pythonvb6@gmail.com
 //   GMAIL_APP_PASSWORD  - 16-char Google App Password
 //   HTTPSMS_API_KEY     - API key from httpsms.com/settings
-//   HTTPSMS_FROM        - your phone number in international format e.g. +639XXXXXXXXX
+//   HTTPSMS_FROM        - your phone number e.g. +639692573933
 
 import nodemailer from 'nodemailer';
 import { supabase, getSessionFromRequest } from './_supabase.js';
 
-// Nodemailer transporter
 function getTransporter() {
   return nodemailer.createTransport({
     service: 'gmail',
@@ -22,7 +20,6 @@ function getTransporter() {
   });
 }
 
-// HttpSms send function
 async function sendSMS(phone, message) {
   const apiKey = process.env.HTTPSMS_API_KEY;
   const from   = process.env.HTTPSMS_FROM;
@@ -30,7 +27,6 @@ async function sendSMS(phone, message) {
   if (!apiKey) throw new Error('HTTPSMS_API_KEY is not configured.');
   if (!from)   throw new Error('HTTPSMS_FROM is not configured.');
 
-  // Normalize PH number to international format
   const to = phone.replace(/^0/, '+63').replace(/[\s\-]/g, '');
 
   const response = await fetch('https://api.httpsms.com/v1/messages/send', {
@@ -50,10 +46,8 @@ async function sendSMS(phone, message) {
   return response.json();
 }
 
-// Email HTML builder
 function buildEmailHtml({ guestName, removedName }) {
-  return `
-<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -99,7 +93,6 @@ function buildSmsText({ guestName, removedName }) {
   return `Hi ${guestName}! This is Jonathan & Maribel. We're sorry, but due to venue capacity we're unable to accommodate your plus-one: ${removedName}. We apologize for the inconvenience and truly look forward to celebrating with you on June 12! For questions, please contact the couple directly.`;
 }
 
-// Main handler
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
@@ -129,6 +122,13 @@ export default async function handler(req, res) {
     return res.status(404).json({ success: false, message: 'RSVP record not found.' });
   }
 
+  if (!rsvp.email && !rsvp.phone) {
+    return res.status(400).json({
+      success: false,
+      message: 'This guest has no email or phone number on file.',
+    });
+  }
+
   const guestName = rsvp.guest_names
     ? rsvp.guest_names.split(',')[0].trim()
     : 'Guest';
@@ -136,7 +136,6 @@ export default async function handler(req, res) {
   const results = { email: null, sms: null };
   const errors  = [];
 
-  // Send email
   if (rsvp.email) {
     try {
       const transporter = getTransporter();
@@ -154,7 +153,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // Send SMS via HttpSms
   if (rsvp.phone) {
     try {
       await sendSMS(rsvp.phone, buildSmsText({ guestName, removedName: removed_name }));
@@ -164,13 +162,6 @@ export default async function handler(req, res) {
       errors.push(`SMS: ${err.message}`);
       results.sms = 'failed';
     }
-  }
-
-  if (!rsvp.email && !rsvp.phone) {
-    return res.status(400).json({
-      success: false,
-      message: 'This guest has no email or phone number on file.',
-    });
   }
 
   return res.status(200).json({

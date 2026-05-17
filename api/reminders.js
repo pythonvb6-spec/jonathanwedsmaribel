@@ -1,25 +1,20 @@
-cat > /home/claude/jonathanwedsmaribel-updated/api/reminders.js << 'JSEOF'
 // api/reminders.js
 // Sends wedding reminder notifications to ALL attending guests on schedule.
 //
 // Reminder schedule (Philippine Time, UTC+8):
-//   May 29 7:00 AM  - 2 weeks before
-//   Jun 05 7:00 AM  - 1 week before
-//   Jun 09 7:00 AM  - 3 days before
-//   Jun 12 7:00 AM  - Wedding day
-//
-// Vercel cron jobs in vercel.json fire at 23:00 UTC the night before
-// which equals 07:00 PHT the next morning.
+//   May 29 7:00 AM  - 2 weeks before  → cron: 0 23 28 5 *
+//   Jun 05 7:00 AM  - 1 week before   → cron: 0 23 4 6 *
+//   Jun 09 7:00 AM  - 3 days before   → cron: 0 23 8 6 *
+//   Jun 12 7:00 AM  - Wedding day     → cron: 0 23 11 6 *
 //
 // Required env vars:
 //   GMAIL_USER, GMAIL_APP_PASSWORD
 //   HTTPSMS_API_KEY, HTTPSMS_FROM
-//   REMINDER_SECRET  - shared secret for cron auth
+//   REMINDER_SECRET  - shared secret to protect cron endpoint
 
 import nodemailer from 'nodemailer';
 import { supabase, getSessionFromRequest } from './_supabase.js';
 
-// Reminder schedule
 const REMINDERS = [
   { month: 5,  day: 29, label: '2 Weeks',   tagline: 'Only 2 weeks to go!'  },
   { month: 6,  day:  5, label: '1 Week',    tagline: 'Just 1 week away!'    },
@@ -29,16 +24,15 @@ const REMINDERS = [
 
 function todayPHT() {
   const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-  return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
+  return { month: now.getMonth() + 1, day: now.getDate() };
 }
 
-function getReminderForToday(force = false) {
+function getReminderForToday(force) {
   if (force) return REMINDERS[REMINDERS.length - 1];
   const { month, day } = todayPHT();
   return REMINDERS.find(r => r.month === month && r.day === day) || null;
 }
 
-// Nodemailer
 function getTransporter() {
   return nodemailer.createTransport({
     service: 'gmail',
@@ -49,7 +43,6 @@ function getTransporter() {
   });
 }
 
-// HttpSms
 async function sendSMS(phone, message) {
   const apiKey = process.env.HTTPSMS_API_KEY;
   const from   = process.env.HTTPSMS_FROM;
@@ -76,11 +69,9 @@ async function sendSMS(phone, message) {
   return response.json();
 }
 
-// Email template
 function buildReminderEmail({ guestName, reminder }) {
   const isWeddingDay = reminder.day === 12 && reminder.month === 6;
-  return `
-<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -92,7 +83,7 @@ function buildReminderEmail({ guestName, reminder }) {
     .header { background: #7d8e56; padding: 32px 40px; text-align: center; }
     .header h1 { color: #fff; font-size: 1.4rem; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 4px; }
     .header .tag { color: rgba(255,255,255,.9); font-size: 1rem; font-style: italic; margin: 6px 0 0; }
-    .body  { padding: 36px 40px; color: #3d3830; line-height: 1.7; }
+    .body { padding: 36px 40px; color: #3d3830; line-height: 1.7; }
     .body p { margin: 0 0 16px; }
     .detail-box { background: #f8f6f0; border-radius: 6px; padding: 18px 22px; margin: 22px 0; }
     .detail-box p { margin: 4px 0; font-size: .9rem; }
@@ -139,7 +130,6 @@ function buildSmsText({ guestName, reminder }) {
   return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${reminder.label}! Date: June 12, 2026 | Time: 3:00 PM | Venue: Regina's Garden & Restaurant. See you there!`;
 }
 
-// Main handler
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
@@ -148,16 +138,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed.' });
   }
 
-  // Auth: admin session OR REMINDER_SECRET header (for cron)
-  const cronSecret = req.headers['x-reminder-secret'];
-  const isValidCron = cronSecret && cronSecret === process.env.REMINDER_SECRET;
-  const session = getSessionFromRequest(req);
+  // Auth: admin session OR REMINDER_SECRET header (for Vercel cron)
+  const cronSecret   = req.headers['x-reminder-secret'];
+  const isValidCron  = cronSecret && cronSecret === process.env.REMINDER_SECRET;
+  const session      = getSessionFromRequest(req);
 
   if (!isValidCron && !session) {
     return res.status(401).json({ success: false, message: 'Unauthorized.' });
   }
 
-  const force = req.query?.force === 'true' || req.body?.force === true;
+  const force    = req.query?.force === 'true' || req.body?.force === true;
   const reminder = getReminderForToday(force);
 
   if (!reminder) {
@@ -168,7 +158,6 @@ export default async function handler(req, res) {
     });
   }
 
-  // Fetch all attending guests with email or phone
   const { data: guests, error } = await supabase
     .from('rsvp')
     .select('id, guest_names, email, phone')
