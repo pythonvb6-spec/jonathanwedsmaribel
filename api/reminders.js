@@ -1,49 +1,44 @@
+cat > /home/claude/jonathanwedsmaribel-updated/api/reminders.js << 'JSEOF'
 // api/reminders.js
 // Sends wedding reminder notifications to ALL attending guests on schedule.
 //
 // Reminder schedule (Philippine Time, UTC+8):
-//   May 29 7:00 AM  – 2 weeks before
-//   Jun 05 7:00 AM  – 1 week before
-//   Jun 09 7:00 AM  – 3 days before
-//   Jun 12 7:00 AM  – Day of the wedding 🎉
+//   May 29 7:00 AM  - 2 weeks before
+//   Jun 05 7:00 AM  - 1 week before
+//   Jun 09 7:00 AM  - 3 days before
+//   Jun 12 7:00 AM  - Wedding day
 //
-// HOW TO TRIGGER:
-//   Option A (Vercel Cron) — add to vercel.json:
-//     { "crons": [{ "path": "/api/reminders", "schedule": "0 23 28,4,8,11 5,6 *" }] }
-//     (23:00 UTC = 07:00 PHT the next day for May 28→29, Jun 4→5, Jun 8→9, Jun 11→12)
+// Vercel cron jobs in vercel.json fire at 23:00 UTC the night before
+// which equals 07:00 PHT the next morning.
 //
-//   Option B (manual / test) — POST /api/reminders with admin session cookie.
-//     The endpoint checks today's date and sends the appropriate reminder.
-//     Add ?force=true to bypass date check during testing.
-//
-// Required env vars: same as notify.js
-//   GMAIL_USER, GMAIL_APP_PASSWORD, SMS_GATEWAY_URL, SMS_GATEWAY_USER, SMS_GATEWAY_PASS
-//   REMINDER_SECRET  – a shared secret so Vercel cron calls can authenticate
+// Required env vars:
+//   GMAIL_USER, GMAIL_APP_PASSWORD
+//   HTTPSMS_API_KEY, HTTPSMS_FROM
+//   REMINDER_SECRET  - shared secret for cron auth
 
 import nodemailer from 'nodemailer';
 import { supabase, getSessionFromRequest } from './_supabase.js';
 
-// ── Reminder schedule (PHT dates) ────────────────────────────────────────────
+// Reminder schedule
 const REMINDERS = [
-  { month: 5,  day: 29, label: '2 Weeks',  tagline: 'Only 2 weeks to go!' },
-  { month: 6,  day:  5, label: '1 Week',   tagline: 'Just 1 week away!'   },
-  { month: 6,  day:  9, label: '3 Days',   tagline: '3 days and counting!' },
-  { month: 6,  day: 12, label: 'Today! 🎉', tagline: "It's the big day!"   },
+  { month: 5,  day: 29, label: '2 Weeks',   tagline: 'Only 2 weeks to go!'  },
+  { month: 6,  day:  5, label: '1 Week',    tagline: 'Just 1 week away!'    },
+  { month: 6,  day:  9, label: '3 Days',    tagline: '3 days and counting!' },
+  { month: 6,  day: 12, label: 'Today!',    tagline: "It's the big day!"    },
 ];
 
 function todayPHT() {
-  // Returns { year, month (1-based), day } in Asia/Manila timezone
   const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
   return { year: now.getFullYear(), month: now.getMonth() + 1, day: now.getDate() };
 }
 
 function getReminderForToday(force = false) {
-  if (force) return REMINDERS[REMINDERS.length - 1]; // return last for testing
+  if (force) return REMINDERS[REMINDERS.length - 1];
   const { month, day } = todayPHT();
   return REMINDERS.find(r => r.month === month && r.day === day) || null;
 }
 
-// ── Nodemailer ────────────────────────────────────────────────────────────────
+// Nodemailer
 function getTransporter() {
   return nodemailer.createTransport({
     service: 'gmail',
@@ -54,32 +49,34 @@ function getTransporter() {
   });
 }
 
-// ── SMS helper ────────────────────────────────────────────────────────────────
+// HttpSms
 async function sendSMS(phone, message) {
-  const gatewayUrl = process.env.SMS_GATEWAY_URL;
-  if (!gatewayUrl) throw new Error('SMS_GATEWAY_URL not configured.');
-  const user = process.env.SMS_GATEWAY_USER || 'admin';
-  const pass = process.env.SMS_GATEWAY_PASS || '';
-  const credentials = Buffer.from(`${user}:${pass}`).toString('base64');
-  const normalized = phone.replace(/^0/, '+63').replace(/[^+\d]/g, '');
+  const apiKey = process.env.HTTPSMS_API_KEY;
+  const from   = process.env.HTTPSMS_FROM;
 
-  const response = await fetch(`${gatewayUrl}/message`, {
+  if (!apiKey) throw new Error('HTTPSMS_API_KEY is not configured.');
+  if (!from)   throw new Error('HTTPSMS_FROM is not configured.');
+
+  const to = phone.replace(/^0/, '+63').replace(/[\s\-]/g, '');
+
+  const response = await fetch('https://api.httpsms.com/v1/messages/send', {
     method: 'POST',
     headers: {
+      'x-api-key':    apiKey,
       'Content-Type': 'application/json',
-      Authorization: `Basic ${credentials}`,
+      'Accept':       'application/json',
     },
-    body: JSON.stringify({ phoneNumbers: [normalized], message }),
+    body: JSON.stringify({ content: message, from, to }),
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`SMS Gateway error ${response.status}: ${text}`);
+    throw new Error(`HttpSms error ${response.status}: ${text}`);
   }
   return response.json();
 }
 
-// ── Email template ────────────────────────────────────────────────────────────
+// Email template
 function buildReminderEmail({ guestName, reminder }) {
   const isWeddingDay = reminder.day === 12 && reminder.month === 6;
   return `
@@ -88,9 +85,9 @@ function buildReminderEmail({ guestName, reminder }) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Wedding Reminder – Jonathan & Maribel</title>
+  <title>Wedding Reminder - Jonathan & Maribel</title>
   <style>
-    body { font-family: 'Georgia', serif; background: #faf9f7; margin: 0; padding: 0; }
+    body { font-family: Georgia, serif; background: #faf9f7; margin: 0; padding: 0; }
     .wrap { max-width: 560px; margin: 40px auto; background: #fff; border: 1px solid #e8e4dc; border-radius: 8px; overflow: hidden; }
     .header { background: #7d8e56; padding: 32px 40px; text-align: center; }
     .header h1 { color: #fff; font-size: 1.4rem; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 4px; }
@@ -100,8 +97,6 @@ function buildReminderEmail({ guestName, reminder }) {
     .detail-box { background: #f8f6f0; border-radius: 6px; padding: 18px 22px; margin: 22px 0; }
     .detail-box p { margin: 4px 0; font-size: .9rem; }
     .detail-box strong { color: #7d8e56; }
-    .cta { text-align: center; margin: 24px 0 8px; }
-    .cta a { background: #7d8e56; color: #fff; text-decoration: none; padding: 12px 28px; border-radius: 4px; font-family: sans-serif; font-size: .9rem; letter-spacing: .05em; }
     .footer { background: #f5f3ee; padding: 20px 40px; text-align: center; font-size: .78rem; color: #999; font-family: sans-serif; }
   </style>
 </head>
@@ -114,24 +109,17 @@ function buildReminderEmail({ guestName, reminder }) {
     <div class="body">
       <p>Dear <strong>${guestName}</strong>,</p>
       ${isWeddingDay
-        ? `<p>Today is the day! We are overjoyed that you will be with us as we begin our forever together. 💛</p>
+        ? `<p>Today is the day! We are overjoyed that you will be with us as we begin our forever together.</p>
            <p>Please make sure to arrive on time and don't forget the dress code. We can't wait to see you!</p>`
-        : `<p>
-            Just a friendly reminder that the wedding of <strong>Jonathan & Maribel</strong> is
-            coming up in <strong>${reminder.label}</strong>! We are so excited to celebrate
-            this special day with you.
-           </p>`
+        : `<p>Just a friendly reminder that the wedding of <strong>Jonathan &amp; Maribel</strong> is coming up in <strong>${reminder.label}</strong>! We are so excited to celebrate this special day with you.</p>`
       }
       <div class="detail-box">
-        <p><strong>📅 Date:</strong> June 12, 2026 (Friday)</p>
-        <p><strong>⏰ Time:</strong> Ceremony begins at 3:00 PM</p>
-        <p><strong>📍 Venue:</strong> Regina's Garden &amp; Restaurant</p>
-        <p><strong>👗 Dress Code:</strong> Smart Casual / Semi-Formal</p>
+        <p><strong>Date:</strong> June 12, 2026 (Friday)</p>
+        <p><strong>Time:</strong> Ceremony begins at 3:00 PM</p>
+        <p><strong>Venue:</strong> Regina's Garden &amp; Restaurant</p>
+        <p><strong>Dress Code:</strong> Smart Casual / Semi-Formal</p>
       </div>
-      <p>
-        We kindly ask that you be fully present during the ceremony — please turn off your
-        phone and cameras so we can all share the moment together. 📵
-      </p>
+      <p>We kindly ask that you be fully present during the ceremony — please turn off your phone and cameras so we can all share the moment together.</p>
       <p>With so much love,<br><strong>Jonathan &amp; Maribel</strong></p>
     </div>
     <div class="footer">
@@ -146,20 +134,12 @@ function buildReminderEmail({ guestName, reminder }) {
 function buildSmsText({ guestName, reminder }) {
   const isWeddingDay = reminder.day === 12 && reminder.month === 6;
   if (isWeddingDay) {
-    return (
-      `Hi ${guestName}! Today is the big day! 🎉 Jonathan & Maribel's wedding is today, ` +
-      `June 12, 2026 at Regina's Garden & Restaurant. Ceremony starts at 3:00 PM. ` +
-      `We can't wait to celebrate with you! 💛`
-    );
+    return `Hi ${guestName}! Today is the big day! Jonathan & Maribel's wedding is TODAY, June 12 at Regina's Garden & Restaurant. Ceremony starts at 3:00 PM. We can't wait to celebrate with you!`;
   }
-  return (
-    `Hi ${guestName}! Friendly reminder: Jonathan & Maribel's wedding is in ${reminder.label}! ` +
-    `📅 June 12, 2026 · ⏰ 3:00 PM · 📍 Regina's Garden & Restaurant. ` +
-    `See you there! 💛`
-  );
+  return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${reminder.label}! Date: June 12, 2026 | Time: 3:00 PM | Venue: Regina's Garden & Restaurant. See you there!`;
 }
 
-// ── Main handler ──────────────────────────────────────────────────────────────
+// Main handler
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
@@ -168,7 +148,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed.' });
   }
 
-  // Auth: accept either admin session cookie OR REMINDER_SECRET header
+  // Auth: admin session OR REMINDER_SECRET header (for cron)
   const cronSecret = req.headers['x-reminder-secret'];
   const isValidCron = cronSecret && cronSecret === process.env.REMINDER_SECRET;
   const session = getSessionFromRequest(req);
@@ -211,13 +191,12 @@ export default async function handler(req, res) {
       ? rsvp.guest_names.split(',')[0].trim()
       : 'Guest';
 
-    // Email
     if (rsvp.email) {
       try {
         await transporter.sendMail({
           from: `"Jonathan & Maribel Wedding" <${process.env.GMAIL_USER}>`,
           to: rsvp.email,
-          subject: `Wedding Reminder – ${reminder.label} to Go! | Jonathan & Maribel`,
+          subject: `Wedding Reminder - ${reminder.label} to Go! | Jonathan & Maribel`,
           html: buildReminderEmail({ guestName, reminder }),
         });
         summary.emailSent++;
@@ -227,7 +206,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // SMS
     if (rsvp.phone) {
       try {
         await sendSMS(rsvp.phone, buildSmsText({ guestName, reminder }));
