@@ -18,9 +18,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: false, message: 'Invalid attendance value.' });
   }
 
-  // ── "No" RSVP ──────────────────────────────────────────────────────────────
+  // "No" RSVP
   if (attending === 'no') {
-    // Accept optional guest name so admin can see who declined
     let guestName = null;
     const rawNames = body.guest_names;
     if (rawNames) {
@@ -41,32 +40,42 @@ export default async function handler(req, res) {
     });
 
     if (error) {
-      // 23505 = unique_violation (IP already recorded — that's fine, just return success)
-      if (error.code === '23505') {
-        return res.status(200).json({ success: true, attending: 'no' });
-      }
+      if (error.code === '23505') return res.status(200).json({ success: true, attending: 'no' });
       console.error('Supabase insert error (no):', error);
       return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
     }
-
     return res.status(200).json({ success: true, attending: 'no' });
   }
 
-  // ── "Yes" RSVP — validate input ────────────────────────────────────────────
+  // "Yes" RSVP - validate
   const numGuests = parseInt(body.num_guests ?? 0);
   const guestNamesRaw = body.guest_names ?? '';
   const message = (body.message ?? '').trim();
+
+  // At least one contact method required
+  const email = (body.email ?? '').trim().toLowerCase() || null;
+  const phone = (body.phone ?? '').trim() || null;
+
+  if (!email && !phone) {
+    return res.status(200).json({
+      success: false,
+      message: 'Please provide at least one contact method (Gmail address or phone number).'
+    });
+  }
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(200).json({ success: false, message: 'Please enter a valid email address.' });
+  }
+  if (phone && !/^(\+?63|0)9\d{9}$/.test(phone.replace(/[\s\-]/g, ''))) {
+    return res.status(200).json({ success: false, message: 'Please enter a valid Philippine mobile number (e.g. 09XXXXXXXXX).' });
+  }
 
   if (numGuests < 1 || numGuests > 20) {
     return res.status(200).json({ success: false, message: 'Invalid number of guests.' });
   }
 
   let guestNames;
-  try {
-    guestNames = JSON.parse(guestNamesRaw);
-  } catch {
-    return res.status(200).json({ success: false, message: 'Please provide guest names.' });
-  }
+  try { guestNames = JSON.parse(guestNamesRaw); }
+  catch { return res.status(200).json({ success: false, message: 'Please provide guest names.' }); }
 
   if (!Array.isArray(guestNames) || guestNames.length === 0) {
     return res.status(200).json({ success: false, message: 'Please provide guest names.' });
@@ -80,26 +89,18 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: false, message: 'Please provide valid guest names.' });
   }
 
-  // ── Name duplicate check ────────────────────────────────────────────────────
-  // Fetch all existing guest_names from the DB and check for matches.
+  // Duplicate name check
   const { data: existingRows } = await supabase
-    .from('rsvp')
-    .select('guest_names')
-    .eq('attending', 'yes')
-    .not('guest_names', 'is', null);
+    .from('rsvp').select('guest_names').eq('attending', 'yes').not('guest_names', 'is', null);
 
-  // Flatten all recorded names into a single lowercase set
   const registeredNames = new Set();
   if (existingRows) {
     for (const row of existingRows) {
-      const names = row.guest_names.split(',').map(n => n.trim().toLowerCase());
-      names.forEach(n => registeredNames.add(n));
+      row.guest_names.split(',').map(n => n.trim().toLowerCase()).forEach(n => registeredNames.add(n));
     }
   }
 
-  // Find which submitted names are already registered
   const duplicates = guestNames.filter(n => registeredNames.has(n.toLowerCase()));
-
   if (duplicates.length > 0) {
     return res.status(200).json({
       success: false,
@@ -108,33 +109,27 @@ export default async function handler(req, res) {
     });
   }
 
-  // ── Insert ─────────────────────────────────────────────────────────────────
+  // Insert
   const { error } = await supabase.from('rsvp').insert({
     ip_address:  ip,
     attending:   'yes',
     num_guests:  numGuests,
     guest_names: guestNames.join(', '),
-    message:     message || null
+    message:     message || null,
+    email:       email,
+    phone:       phone
   });
 
   if (error) {
-    // 23505 = unique_violation: same IP already submitted "yes" from this network.
-    // This happens when two different guests share one public IP (same WiFi).
-    // The second guest's localStorage is empty so the form shows, but the DB
-    // blocks the insert. Return a clear, friendly message instead of a 500.
     if (error.code === '23505') {
       return res.status(200).json({
         success: false,
-        message: 'It looks like an RSVP has already been submitted from your network. If you haven\'t submitted yet, please contact Jonathan & Maribel directly.'
+        message: "It looks like an RSVP has already been submitted from your network. If you haven't submitted yet, please contact Jonathan & Maribel directly."
       });
     }
     console.error('Supabase insert error (yes):', error);
     return res.status(500).json({ success: false, message: 'Database error. Please try again.' });
   }
 
-  return res.status(200).json({
-    success: true,
-    attending: 'yes',
-    message: 'RSVP submitted successfully!'
-  });
+  return res.status(200).json({ success: true, attending: 'yes', message: 'RSVP submitted successfully!' });
 }

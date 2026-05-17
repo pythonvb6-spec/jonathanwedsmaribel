@@ -825,6 +825,12 @@
             <input type="text" class="form-control guest-name-input" placeholder="Please input names">
           </div>
           <div class="form-group">
+            <label class="form-label">Contact Information <span style="font-size:.8rem;color:#c0392b">*</span></label>
+            <p style="font-size:.8rem;color:#888;margin:0 0 8px">So we can reach you about your RSVP. Provide at least one.</p>
+            <input type="email" class="form-control" id="rsvp-email" placeholder="Gmail address (optional)" style="margin-bottom:8px">
+            <input type="tel" class="form-control" id="rsvp-phone" placeholder="Phone number e.g. 09XXXXXXXXX (optional)">
+          </div>
+          <div class="form-group">
             <label class="form-label">Wishes / Message for the couple</label>
             <textarea class="form-control" id="rsvp-message" placeholder="Write your heartfelt message…"></textarea>
           </div>
@@ -1069,10 +1075,13 @@ function submitRSVP() {
   }
   const num = parseInt(document.getElementById('num-guests')?.value) || 0;
   const names = Array.from(document.querySelectorAll('.guest-name-input')).map(i => i.value.trim()).filter(Boolean);
-  const msg = document.getElementById('rsvp-message')?.value.trim() || '';
+  const msg   = document.getElementById('rsvp-message')?.value.trim() || '';
+  const email = document.getElementById('rsvp-email')?.value.trim() || '';
+  const phone = document.getElementById('rsvp-phone')?.value.trim() || '';
   if (!num || num < 1) { alert('Please enter number of guests.'); return; }
   if (names.length < num) { alert('Please fill in all guest names.'); return; }
-  const data = { attending: 'yes', num_guests: num, guest_names: JSON.stringify(names), message: msg };
+  if (!email && !phone) { alert('Please provide at least one contact method (Gmail or phone number).'); return; }
+  const data = { attending: 'yes', num_guests: num, guest_names: JSON.stringify(names), message: msg, email, phone };
   rsvpSubmitting = true;
   const submitBtn = document.querySelector('#rsvp-step2 .btn-primary');
   if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting…'; }

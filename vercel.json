@@ -1,36 +1,43 @@
 {
   "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    }
+    { "source": "/api/:path*", "destination": "/api/:path*" }
   ],
 
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type"
-        }
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
       ]
     }
   ],
 
   "redirects": [
+    { "source": "/", "destination": "/index.html", "permanent": false }
+  ],
+
+  "crons": [
     {
-      "source": "/",
-      "destination": "/index.html",
-      "permanent": false
+      "path": "/api/reminders",
+      "schedule": "0 23 28 5 *",
+      "comment": "May 29 7am PHT = May 28 23:00 UTC — 2 weeks before"
+    },
+    {
+      "path": "/api/reminders",
+      "schedule": "0 23 4 6 *",
+      "comment": "Jun 05 7am PHT = Jun 04 23:00 UTC — 1 week before"
+    },
+    {
+      "path": "/api/reminders",
+      "schedule": "0 23 8 6 *",
+      "comment": "Jun 09 7am PHT = Jun 08 23:00 UTC — 3 days before"
+    },
+    {
+      "path": "/api/reminders",
+      "schedule": "0 23 11 6 *",
+      "comment": "Jun 12 7am PHT = Jun 11 23:00 UTC — wedding day"
     }
   ]
 }

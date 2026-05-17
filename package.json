@@ -1,13 +1,14 @@
 {
   "name": "wedding-rsvp",
   "version": "1.0.0",
-  "description": "Johndy & Ianjean Wedding RSVP Website",
+  "description": "Jonathan & Maribel Wedding RSVP Website",
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel --prod"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "nodemailer": "^6.9.14"
   }
 }

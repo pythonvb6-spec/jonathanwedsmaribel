@@ -38,3 +38,15 @@ ON CONFLICT (username) DO NOTHING;
 
 ALTER TABLE rsvp DISABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users DISABLE ROW LEVEL SECURITY;
+
+-- ============================================================
+-- MIGRATION: Add email and phone columns for notifications
+-- Run in Supabase SQL Editor after the initial schema above.
+-- ============================================================
+
+ALTER TABLE rsvp ADD COLUMN IF NOT EXISTS email   TEXT;
+ALTER TABLE rsvp ADD COLUMN IF NOT EXISTS phone   VARCHAR(20);
+
+-- Optional: index for faster lookups during reminder blasts
+CREATE INDEX IF NOT EXISTS rsvp_email_idx ON rsvp (email) WHERE email IS NOT NULL;
+CREATE INDEX IF NOT EXISTS rsvp_phone_idx ON rsvp (phone) WHERE phone IS NOT NULL;

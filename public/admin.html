@@ -122,11 +122,12 @@
             <option value="3">3+ Guests</option>
           </select>
           <button class="btn-export" onclick="exportToCSV()"><i class="fa-solid fa-file-excel"></i> Export</button>
+          <button class="btn-export" id="btn-send-reminders" onclick="sendReminders()" style="background:#7d8e56;color:#fff;border:none" title="Send today's scheduled reminder to all guests">&#128232; Send Reminders</button>
         </div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Attending</th><th>Guests</th><th>Names</th><th>Message</th><th>Date</th></tr></thead>
+          <thead><tr><th>#</th><th>Attending</th><th>Guests</th><th>Names</th><th>Contact</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
           <tbody id="rsvp-table-body">
             <tr><td colspan="7" style="text-align:center;padding:30px;color:var(--mid)"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</td></tr>
           </tbody>
@@ -253,15 +254,31 @@ function renderRSVP(rows) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--mid)">No RSVP responses found.</td></tr>';
     countEl.textContent = ''; return;
   }
-  tbody.innerHTML = rows.map(r => `
-    <tr>
+  tbody.innerHTML = rows.map(r => {
+    const names = r.attending === 'yes' && r.guest_names
+      ? r.guest_names.split(',').map(n => n.trim()).filter(Boolean)
+      : [];
+    const contactInfo = [r.email, r.phone].filter(Boolean).join('<br>') || '<em style="color:var(--mid)">—</em>';
+    const actionBtns = r.attending === 'yes' && names.length > 1
+      ? `<div style="display:flex;flex-wrap:wrap;gap:4px">` +
+        names.slice(1).map(name =>
+          `<button onclick="removePlusOne(${r.id},'${name.replace(/'/g,"\\'")}',this)"
+             style="font-size:.72rem;padding:3px 8px;background:#fdf0f0;border:1px solid #e0b4b4;color:#c0392b;border-radius:4px;cursor:pointer;white-space:nowrap">
+             ✕ Remove ${escHtml(name)}
+           </button>`
+        ).join('') + `</div>`
+      : '<em style="color:var(--mid);font-size:.78rem">—</em>';
+    return `<tr>
       <td style="color:var(--mid);font-size:.8rem">${r.id}</td>
       <td>${attendingBadge(r.attending)}</td>
       <td><span style="background:rgba(125,142,86,.1);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.8rem;font-weight:500">${r.num_guests}</span></td>
-      <td style="max-width:200px;word-break:break-word;font-size:.875rem">${escHtml(r.guest_names || '—')}</td>
-      <td style="max-width:200px;font-size:.8rem;color:var(--mid);word-break:break-word">${r.message ? escHtml(r.message.substring(0,80)) + (r.message.length > 80 ? '…' : '') : '<em>—</em>'}</td>
+      <td style="max-width:180px;word-break:break-word;font-size:.875rem">${escHtml(r.guest_names || '—')}</td>
+      <td style="font-size:.78rem;color:var(--mid);word-break:break-word">${contactInfo}</td>
+      <td style="max-width:180px;font-size:.8rem;color:var(--mid);word-break:break-word">${r.message ? escHtml(r.message.substring(0,80)) + (r.message.length > 80 ? '…' : '') : '<em>—</em>'}</td>
       <td style="white-space:nowrap;font-size:.78rem;color:var(--mid)">${formatDate(r.submitted_at)}</td>
-    </tr>`).join('');
+      <td>${actionBtns}</td>
+    </tr>`;
+  }).join('');
   const attending = rows.filter(r => r.attending === 'yes');
   const total = attending.reduce((s, r) => s + parseInt(r.num_guests || 0), 0);
   countEl.textContent = `Showing ${rows.length} response${rows.length!==1?'s':''} · ${attending.length} attending · ${total} total guest${total!==1?'s':''}`;
@@ -496,6 +513,88 @@ setInterval(() => {
   if (active?.id === 'page-wishes')    loadWishes();
   if (active?.id === 'page-dashboard') loadDashboard();
 }, 30000);
+
+// ── Remove Plus-One ───────────────────────────────────────────────────────────
+async function removePlusOne(rsvpId, removeName, btnEl) {
+  const confirmMsg = `Remove "${removeName}" from the guest list?\n\nAn apology notification will be sent to the guest via Gmail and/or text (if contact info is on file).`;
+  if (!confirm(confirmMsg)) return;
+
+  btnEl.disabled = true;
+  btnEl.textContent = '…Removing';
+
+  try {
+    // Step 1: Remove from DB
+    const removeRes = await fetch('/api/manage_rsvp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rsvp_id: rsvpId, remove_name: removeName })
+    });
+    const removeData = await removeRes.json();
+
+    if (!removeData.success) {
+      alert('Error removing guest: ' + (removeData.message || 'Unknown error'));
+      btnEl.disabled = false;
+      btnEl.textContent = '✕ Remove ' + removeName;
+      return;
+    }
+
+    // Step 2: Send notification
+    const notifyRes = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rsvp_id: rsvpId, removed_name: removeName })
+    });
+    const notifyData = await notifyRes.json();
+
+    let notifyMsg = '';
+    if (notifyData.results) {
+      const r = notifyData.results;
+      notifyMsg = '\n\nNotification: ';
+      if (r.email) notifyMsg += `Email ${r.email}. `;
+      if (r.sms)   notifyMsg += `SMS ${r.sms}.`;
+      if (!r.email && !r.sms) notifyMsg += 'No contact info on file — no notification sent.';
+    }
+
+    alert(`"${removeName}" has been removed from the guest list.${notifyMsg}`);
+
+    // Refresh data
+    loadData();
+  } catch (err) {
+    alert('Network error: ' + err.message);
+    btnEl.disabled = false;
+    btnEl.textContent = '✕ Remove ' + removeName;
+  }
+}
+
+// ── Send Wedding Reminders ────────────────────────────────────────────────────
+async function sendReminders(force = false) {
+  const msg = force
+    ? 'Send TEST reminder to all attending guests now? (bypasses date check)'
+    : 'Send today\'s wedding reminder to all attending guests?';
+  if (!confirm(msg)) return;
+
+  const btn = document.getElementById('btn-send-reminders');
+  if (btn) { btn.disabled = true; btn.textContent = '…Sending'; }
+
+  try {
+    const res = await fetch('/api/reminders' + (force ? '?force=true' : ''), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.summary) {
+      const s = data.summary;
+      alert(`Reminders sent!\n\nEmails: ${s.emailSent} sent, ${s.emailFailed} failed\nSMS: ${s.smsSent} sent, ${s.smsFailed} failed`);
+    } else {
+      alert(data.message || 'Done.');
+    }
+  } catch (err) {
+    alert('Error: ' + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📨 Send Reminders'; }
+  }
+}
+
 </script>
 </body>
 </html>
