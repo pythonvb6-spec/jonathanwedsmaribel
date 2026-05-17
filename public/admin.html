@@ -154,6 +154,31 @@
   </div>
 </div>
 
+<!-- CONFIRM REMOVE MODAL -->
+<div class="admin-modal" id="confirm-remove-modal">
+  <div class="admin-modal-box" style="max-width:440px">
+    <h3 style="color:#c0392b"><i class="fa-solid fa-user-minus" style="margin-right:8px"></i>Remove Guest</h3>
+    <p id="confirm-remove-text" style="color:#444;line-height:1.6"></p>
+    <p style="font-size:.82rem;color:#888;margin-top:-8px">An apology message will be sent via Gmail and/or SMS if contact info is on file.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeConfirmRemove()">Cancel</button>
+      <button class="btn-danger" id="confirm-remove-btn" onclick="doRemove()"><i class="fa-solid fa-user-minus"></i> Yes, Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT MODAL -->
+<div class="admin-modal" id="result-modal">
+  <div class="admin-modal-box" style="max-width:440px">
+    <div id="result-modal-icon" style="text-align:center;font-size:2rem;margin-bottom:12px"></div>
+    <h3 id="result-modal-title" style="text-align:center;margin:0 0 10px"></h3>
+    <div id="result-modal-body" style="font-size:.88rem;color:#555;line-height:1.7"></div>
+    <div class="modal-btns" style="margin-top:20px">
+      <button class="btn-cancel" style="width:100%;justify-content:center" onclick="closeResultModal()">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- LOGOUT MODAL -->
 <div class="admin-modal" id="logout-modal">
   <div class="admin-modal-box">
@@ -515,16 +540,46 @@ setInterval(() => {
 }, 30000);
 
 // ── Remove Plus-One ───────────────────────────────────────────────────────────
-async function removePlusOne(rsvpId, removeName, btnEl) {
-  const confirmMsg = `Remove "${removeName}" from the guest list?\n\nAn apology notification will be sent to the guest via Gmail and/or text (if contact info is on file).`;
-  if (!confirm(confirmMsg)) return;
+let _removePending = null; // { rsvpId, removeName, btnEl }
 
-  btnEl.disabled = true;
-  btnEl.textContent = '…Removing';
+function removePlusOne(rsvpId, removeName, btnEl) {
+  _removePending = { rsvpId, removeName, btnEl };
+  document.getElementById('confirm-remove-text').textContent =
+    `Are you sure you want to remove "${removeName}" from the guest list?`;
+  document.getElementById('confirm-remove-modal').classList.add('active');
+}
+
+function closeConfirmRemove() {
+  document.getElementById('confirm-remove-modal').classList.remove('active');
+  _removePending = null;
+}
+
+function showResultModal({ success, title, body }) {
+  document.getElementById('result-modal-icon').innerHTML = success
+    ? '<i class="fa-solid fa-circle-check" style="color:#27ae60"></i>'
+    : '<i class="fa-solid fa-circle-xmark" style="color:#c0392b"></i>';
+  document.getElementById('result-modal-title').textContent = title;
+  document.getElementById('result-modal-body').innerHTML = body;
+  document.getElementById('result-modal').classList.add('active');
+}
+
+function closeResultModal() {
+  document.getElementById('result-modal').classList.remove('active');
+}
+
+async function doRemove() {
+  if (!_removePending) return;
+  const { rsvpId, removeName, btnEl } = _removePending;
+
+  const confirmBtn = document.getElementById('confirm-remove-btn');
+  confirmBtn.disabled = true;
+  confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Removing…';
+
+  closeConfirmRemove();
 
   try {
     // Step 1: Remove from DB
-    const removeRes = await fetch('/api/manage_rsvp', {
+    const removeRes  = await fetch('/api/manage_rsvp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rsvp_id: rsvpId, remove_name: removeName })
@@ -532,37 +587,56 @@ async function removePlusOne(rsvpId, removeName, btnEl) {
     const removeData = await removeRes.json();
 
     if (!removeData.success) {
-      alert('Error removing guest: ' + (removeData.message || 'Unknown error'));
-      btnEl.disabled = false;
-      btnEl.textContent = '✕ Remove ' + removeName;
+      showResultModal({
+        success: false,
+        title: 'Could Not Remove Guest',
+        body: escHtml(removeData.message || 'An unknown error occurred.')
+      });
+      if (btnEl) { btnEl.disabled = false; btnEl.textContent = '✕ Remove ' + removeName; }
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = '<i class="fa-solid fa-user-minus"></i> Yes, Remove';
       return;
     }
 
     // Step 2: Send notification
-    const notifyRes = await fetch('/api/notify', {
+    const notifyRes  = await fetch('/api/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ rsvp_id: rsvpId, removed_name: removeName })
     });
     const notifyData = await notifyRes.json();
 
-    let notifyMsg = '';
+    // Build notification status lines
+    let notifyLines = '';
     if (notifyData.results) {
       const r = notifyData.results;
-      notifyMsg = '\n\nNotification: ';
-      if (r.email) notifyMsg += `Email ${r.email}. `;
-      if (r.sms)   notifyMsg += `SMS ${r.sms}.`;
-      if (!r.email && !r.sms) notifyMsg += 'No contact info on file — no notification sent.';
+      if (r.email) notifyLines += `<div style="margin-top:8px">📧 Email: <strong style="color:${r.email==='sent'?'#27ae60':'#c0392b'}">${r.email}</strong></div>`;
+      if (r.sms)   notifyLines += `<div style="margin-top:4px">💬 SMS: <strong style="color:${r.sms==='sent'?'#27ae60':'#c0392b'}">${r.sms}</strong></div>`;
+      if (!r.email && !r.sms) notifyLines = '<div style="margin-top:8px;color:#888">No contact info on file — no notification sent.</div>';
+    }
+    if (notifyData.errors?.length) {
+      notifyLines += `<div style="margin-top:8px;font-size:.8rem;color:#c0392b">${notifyData.errors.map(escHtml).join('<br>')}</div>`;
     }
 
-    alert(`"${removeName}" has been removed from the guest list.${notifyMsg}`);
+    showResultModal({
+      success: true,
+      title: 'Guest Removed',
+      body: `<strong>${escHtml(removeName)}</strong> has been removed from the guest list.<br>${notifyLines}`
+    });
 
-    // Refresh data
-    loadData();
+    // Refresh table
+    loadRSVP();
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = '<i class="fa-solid fa-user-minus"></i> Yes, Remove';
   } catch (err) {
-    alert('Network error: ' + err.message);
-    btnEl.disabled = false;
-    btnEl.textContent = '✕ Remove ' + removeName;
+    showResultModal({
+      success: false,
+      title: 'Network Error',
+      body: escHtml(err.message)
+    });
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = '✕ Remove ' + removeName; }
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = '<i class="fa-solid fa-user-minus"></i> Yes, Remove';
   }
 }
 
@@ -584,12 +658,17 @@ async function sendReminders(force = false) {
     const data = await res.json();
     if (data.summary) {
       const s = data.summary;
-      alert(`Reminders sent!\n\nEmails: ${s.emailSent} sent, ${s.emailFailed} failed\nSMS: ${s.smsSent} sent, ${s.smsFailed} failed`);
+      showResultModal({
+        success: s.emailFailed === 0 && s.smsFailed === 0,
+        title: 'Reminders Sent!',
+        body: `<div style="margin-top:4px">📧 Emails: <strong>${s.emailSent}</strong> sent, ${s.emailFailed} failed</div>
+               <div style="margin-top:4px">💬 SMS: <strong>${s.smsSent}</strong> sent, ${s.smsFailed} failed</div>`
+      });
     } else {
-      alert(data.message || 'Done.');
+      showResultModal({ success: true, title: 'Done', body: escHtml(data.message || 'Completed.') });
     }
   } catch (err) {
-    alert('Error: ' + err.message);
+    showResultModal({ success: false, title: 'Error', body: escHtml(err.message) });
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = '📨 Send Reminders'; }
   }
