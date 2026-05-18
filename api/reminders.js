@@ -127,9 +127,9 @@ function buildReminderEmail({ guestName, reminder }) {
 function buildSmsText({ guestName, reminder }) {
   const isWeddingDay = reminder.day === 12 && reminder.month === 6;
   if (isWeddingDay) {
-    return `Hi ${guestName}! Today is the big day! Jonathan & Maribel's wedding is TODAY, June 12 at Regina's Garden & Restaurant. Ceremony starts at 3:00 PM. Event starts at 5:00 PM. We can't wait to celebrate with you!`;
+    return `Hi ${guestName}! Today is the big day! Jonathan & Maribel's wedding is TODAY, June 12 at Regina's Garden & Restaurant. Ceremony starts at 3:00 PM (for Immediate Family and Sponsors only). Event starts at 5:00 PM (for All Guests). We can't wait to celebrate with you!`;
   }
-  return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${reminder.label}! Date: June 12, 2026 | Ceremony Time: 3:00 PM | Event Time: 5:00 PM | Venue: Regina's Garden & Restaurant. See you there!`;
+  return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${reminder.label}! Date: June 12, 2026 | Ceremony Time: 3:00 PM (for Immediate Family and Sponsors only) | Event Time: 5:00 PM (for All Guests) | Venue: Regina's Garden & Restaurant. See you there!`;
 }
 
 export default async function handler(req, res) {
