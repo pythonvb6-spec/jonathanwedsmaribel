@@ -141,9 +141,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed.' });
   }
 
-  // Auth: admin session OR Vercel cron Authorization header OR custom secret header
-  const authHeader    = req.headers['authorization'];
-  const isVercelCron  = authHeader === `Bearer ${process.env.CRON_SECRET}` && !!process.env.CRON_SECRET;
+  // Auth: Vercel cron (user-agent check) OR admin session OR custom secret header
+  const isVercelCron  = req.headers['user-agent'] === 'vercel-cron/1.0';
   const cronSecret    = req.headers['x-reminder-secret'];
   const isValidSecret = cronSecret && cronSecret === process.env.REMINDER_SECRET;
   const session       = getSessionFromRequest(req);
