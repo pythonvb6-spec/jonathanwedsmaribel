@@ -11,7 +11,8 @@
 // Required env vars:
 //   GMAIL_USER, GMAIL_APP_PASSWORD
 //   HTTPSMS_API_KEY, HTTPSMS_FROM
-//   REMINDER_SECRET  - shared secret to protect cron endpoint
+//   CRON_SECRET      - Vercel auto-sends this as Authorization: Bearer <value> on cron calls
+//   REMINDER_SECRET  - optional custom secret for manual POST triggers
 
 import nodemailer from 'nodemailer';
 import { supabase, getSessionFromRequest } from './_supabase.js';
@@ -140,12 +141,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed.' });
   }
 
-  // Auth: admin session OR REMINDER_SECRET header (for Vercel cron)
-  const cronSecret   = req.headers['x-reminder-secret'];
-  const isValidCron  = cronSecret && cronSecret === process.env.REMINDER_SECRET;
-  const session      = getSessionFromRequest(req);
+  // Auth: admin session OR Vercel cron Authorization header OR custom secret header
+  const authHeader    = req.headers['authorization'];
+  const isVercelCron  = authHeader === `Bearer ${process.env.CRON_SECRET}` && !!process.env.CRON_SECRET;
+  const cronSecret    = req.headers['x-reminder-secret'];
+  const isValidSecret = cronSecret && cronSecret === process.env.REMINDER_SECRET;
+  const session       = getSessionFromRequest(req);
 
-  if (!isValidCron && !session) {
+  if (!isVercelCron && !isValidSecret && !session) {
     return res.status(401).json({ success: false, message: 'Unauthorized.' });
   }
 
