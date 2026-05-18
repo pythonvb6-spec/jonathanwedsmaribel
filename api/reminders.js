@@ -2,6 +2,7 @@
 // Sends wedding reminder notifications to ALL attending guests on schedule.
 //
 // Reminder schedule (Philippine Time, UTC+8):
+//   May 18 5:35 PM  - 25 days before  → cron: 35 9 18 5 *
 //   May 29 7:00 AM  - 2 weeks before  → cron: 0 23 28 5 *
 //   Jun 05 7:00 AM  - 1 week before   → cron: 0 23 4 6 *
 //   Jun 09 7:00 AM  - 3 days before   → cron: 0 23 8 6 *
@@ -16,6 +17,7 @@ import nodemailer from 'nodemailer';
 import { supabase, getSessionFromRequest } from './_supabase.js';
 
 const REMINDERS = [
+  { month: 5,  day: 18, label: '25 Days',   tagline: 'Only 25 days to go!' },
   { month: 5,  day: 29, label: '2 Weeks',   tagline: 'Only 2 weeks to go!'  },
   { month: 6,  day:  5, label: '1 Week',    tagline: 'Just 1 week away!'    },
   { month: 6,  day:  9, label: '3 Days',    tagline: '3 days and counting!' },
