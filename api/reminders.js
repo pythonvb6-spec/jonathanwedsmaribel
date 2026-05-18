@@ -109,6 +109,7 @@ function buildReminderEmail({ guestName, reminder }) {
       }
       <div class="detail-box">
         <p><strong>Date:</strong> June 12, 2026 (Friday)</p>
+        <p><strong>Time:</strong> 3:00 PM (for Immediate Family & Sponsors only)<br>5:00 PM (for All Guests)</p>
         <p><strong>Venue:</strong> Regina's Garden &amp; Restaurant</p>
         <p><strong>Dress Code:</strong> Smart Casual / Semi-Formal</p>
       </div>
