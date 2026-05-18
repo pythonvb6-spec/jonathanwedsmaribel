@@ -18,7 +18,7 @@ import nodemailer from 'nodemailer';
 import { supabase, getSessionFromRequest } from './_supabase.js';
 
 const REMINDERS = [
-  { month: 5,  day: 18, label: '25 Days',   tagline: 'Only 25 days to go!' },
+  { month: 5,  day: 18, label: '24 Days',   tagline: 'Only 24 days to go!' },
   { month: 5,  day: 29, label: '2 Weeks',   tagline: 'Only 2 weeks to go!'  },
   { month: 6,  day:  5, label: '1 Week',    tagline: 'Just 1 week away!'    },
   { month: 6,  day:  9, label: '3 Days',    tagline: '3 days and counting!' },
@@ -109,7 +109,6 @@ function buildReminderEmail({ guestName, reminder }) {
       }
       <div class="detail-box">
         <p><strong>Date:</strong> June 12, 2026 (Friday)</p>
-        <p><strong>Time:</strong> Ceremony begins at 3:00 PM</p>
         <p><strong>Venue:</strong> Regina's Garden &amp; Restaurant</p>
         <p><strong>Dress Code:</strong> Smart Casual / Semi-Formal</p>
       </div>
@@ -128,9 +127,9 @@ function buildReminderEmail({ guestName, reminder }) {
 function buildSmsText({ guestName, reminder }) {
   const isWeddingDay = reminder.day === 12 && reminder.month === 6;
   if (isWeddingDay) {
-    return `Hi ${guestName}! Today is the big day! Jonathan & Maribel's wedding is TODAY, June 12 at Regina's Garden & Restaurant. Ceremony starts at 3:00 PM. We can't wait to celebrate with you!`;
+    return `Hi ${guestName}! Today is the big day! Jonathan & Maribel's wedding is TODAY, June 12 at Regina's Garden & Restaurant. Ceremony starts at 3:00 PM. Event starts at 5:00 PM. We can't wait to celebrate with you!`;
   }
-  return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${reminder.label}! Date: June 12, 2026 | Time: 3:00 PM | Venue: Regina's Garden & Restaurant. See you there!`;
+  return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${reminder.label}! Date: June 12, 2026 | Ceremony Time: 3:00 PM | Event Time: 5:00 PM | Venue: Regina's Garden & Restaurant. See you there!`;
 }
 
 export default async function handler(req, res) {
