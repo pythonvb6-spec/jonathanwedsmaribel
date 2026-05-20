@@ -643,35 +643,19 @@ async function doRemove() {
 
 // ── Send Wedding Reminders ────────────────────────────────────────────────────
 
-function todayPHTString() {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+async function fetchReminderLocked() {
+  try {
+    const res = await fetch('/api/reminder_status');
+    const data = await res.json();
+    return data.locked === true;
+  } catch {
+    return false; // if the check fails, don't block the admin
+  }
 }
 
-function unlockTimeFor(lockedDateStr) {
-  const [y, m, d] = lockedDateStr.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d + 1, 23, 0, 0)); // 7:00 AM PHT next day
-}
-
-function getReminderLock() {
-  try { return JSON.parse(localStorage.getItem('reminder_lock') || 'null'); } catch { return null; }
-}
-function setReminderLock(dateStr) {
-  localStorage.setItem('reminder_lock', JSON.stringify({ date: dateStr, lockedAt: Date.now() }));
-}
-function clearReminderLock() { localStorage.removeItem('reminder_lock'); }
-
-function isReminderLocked() {
-  const lock = getReminderLock();
-  if (!lock) return false;
-  if (lock.date !== todayPHTString()) { clearReminderLock(); return false; }
-  if (Date.now() >= unlockTimeFor(lock.date).getTime()) { clearReminderLock(); return false; }
-  return true;
-}
-
-function applyReminderButtonState() {
-  const btn = document.getElementById('btn-send-reminders');
+function setButtonLocked(btn, locked) {
   if (!btn) return;
-  if (isReminderLocked()) {
+  if (locked) {
     btn.disabled = true;
     btn.title = 'Reminders already sent today. Unlocks at 7:00 AM tomorrow.';
     btn.innerHTML = '🔒 Reminders Sent';
@@ -686,15 +670,26 @@ function applyReminderButtonState() {
   }
 }
 
+async function applyReminderButtonState() {
+  const btn = document.getElementById('btn-send-reminders');
+  if (!btn) return;
+  const locked = await fetchReminderLocked();
+  setButtonLocked(btn, locked);
+}
+
 async function sendReminders() {
-  if (isReminderLocked()) {
-    showResultModal({ success: false, title: 'Already Sent', body: 'Reminders were already sent today. The button will unlock at 7:00 AM tomorrow.' });
+  const btn = document.getElementById('btn-send-reminders');
+
+  // Re-check server state before sending (catches race between two devices)
+  const alreadySent = await fetchReminderLocked();
+  if (alreadySent) {
+    setButtonLocked(btn, true);
+    showResultModal({ success: false, title: 'Already Sent', body: 'Reminders were already sent today by another device. The button will unlock at 7:00 AM tomorrow.' });
     return;
   }
 
   if (!confirm('Send a wedding reminder to all attending guests now?')) return;
 
-  const btn = document.getElementById('btn-send-reminders');
   if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Sending…'; btn.style.background = '#aaa'; }
 
   try {
@@ -706,7 +701,6 @@ async function sendReminders() {
     if (data.summary) {
       const s = data.summary;
       const allOk = s.emailFailed === 0 && s.smsFailed === 0;
-      if (allOk) setReminderLock(todayPHTString());
       showResultModal({
         success: allOk,
         title: 'Reminders Sent!',
@@ -719,7 +713,7 @@ async function sendReminders() {
   } catch (err) {
     showResultModal({ success: false, title: 'Error', body: escHtml(err.message) });
   } finally {
-    applyReminderButtonState();
+    await applyReminderButtonState(); // always re-sync from server
   }
 }
 

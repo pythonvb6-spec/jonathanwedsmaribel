@@ -184,6 +184,15 @@ export default async function handler(req, res) {
     }
   }
 
+  // Record the send date in Supabase so all devices see the lock
+  const allOk = summary.emailFailed === 0 && summary.smsFailed === 0;
+  if (allOk) {
+    const todayPHT = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    await supabase
+      .from('settings')
+      .upsert({ key: 'last_reminder_sent_date', value: todayPHT }, { onConflict: 'key' });
+  }
+
   return res.status(200).json({
     success: true,
     reminder: label,
