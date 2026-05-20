@@ -184,13 +184,16 @@ export default async function handler(req, res) {
     }
   }
 
-  // Record the send date in Supabase so all devices see the lock
+  // Record the unlock time in Supabase so all devices see the lock.
+  // Unlocks at 7:00 AM PHT the next day = 23:00 UTC that same calendar day (PHT = UTC+8).
   const allOk = summary.emailFailed === 0 && summary.smsFailed === 0;
   if (allOk) {
-    const todayPHT = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    const nowManila  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    const y = nowManila.getFullYear(), m = nowManila.getMonth(), d = nowManila.getDate();
+    const unlockUTC  = new Date(Date.UTC(y, m, d + 1, 23, 0, 0)); // 7AM PHT next day
     await supabase
       .from('settings')
-      .upsert({ key: 'last_reminder_sent_date', value: todayPHT }, { onConflict: 'key' });
+      .upsert({ key: 'reminder_unlock_at', value: unlockUTC.toISOString() }, { onConflict: 'key' });
   }
 
   return res.status(200).json({

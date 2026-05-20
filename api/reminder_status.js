@@ -1,12 +1,8 @@
 // api/reminder_status.js
-// Returns whether a reminder has already been sent today (PHT).
-// Used by the admin portal to sync button state across all devices.
+// Returns whether a reminder has already been sent and the unlock time hasn't passed yet.
+// Unlock time is always 7:00 AM PHT the day after the reminder was sent.
 
 import { supabase, getSessionFromRequest } from './_supabase.js';
-
-function todayPHTString() {
-  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
-}
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -22,15 +18,15 @@ export default async function handler(req, res) {
   const { data, error } = await supabase
     .from('settings')
     .select('value')
-    .eq('key', 'last_reminder_sent_date')
+    .eq('key', 'reminder_unlock_at')
     .single();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 = row not found, that's fine
+  if (error && error.code !== 'PGRST116') {
     return res.status(500).json({ success: false, message: 'DB error.' });
   }
 
-  const lastSentDate = data?.value || null;
-  const lockedToday  = lastSentDate === todayPHTString();
+  const unlockAt = data?.value ? new Date(data.value) : null;
+  const locked   = unlockAt ? Date.now() < unlockAt.getTime() : false;
 
-  return res.status(200).json({ success: true, locked: lockedToday, lastSentDate });
+  return res.status(200).json({ success: true, locked, unlockAt: unlockAt?.toISOString() || null });
 }
