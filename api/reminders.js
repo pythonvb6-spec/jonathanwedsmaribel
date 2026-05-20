@@ -1,39 +1,28 @@
 // api/reminders.js
-// Sends wedding reminder notifications to ALL attending guests on schedule.
-//
-// Reminder schedule (Philippine Time, UTC+8):
-//   May 18 5:35 PM  - 25 days before  → cron: 35 9 18 5 *
-//   May 29 7:00 AM  - 2 weeks before  → cron: 0 23 28 5 *
-//   Jun 05 7:00 AM  - 1 week before   → cron: 0 23 4 6 *
-//   Jun 09 7:00 AM  - 3 days before   → cron: 0 23 8 6 *
-//   Jun 12 7:00 AM  - Wedding day     → cron: 0 23 11 6 *
+// Sends wedding reminder notifications to ALL attending guests.
+// Triggered manually by the admin via the admin portal.
 //
 // Required env vars:
 //   GMAIL_USER, GMAIL_APP_PASSWORD
 //   HTTPSMS_API_KEY, HTTPSMS_FROM
-//   CRON_SECRET      - Vercel auto-sends this as Authorization: Bearer <value> on cron calls
-//   REMINDER_SECRET  - optional custom secret for manual POST triggers
 
 import nodemailer from 'nodemailer';
 import { supabase, getSessionFromRequest } from './_supabase.js';
 
-const REMINDERS = [
-  { month: 5,  day: 18, label: '24 Days',   tagline: 'Only 24 days to go!' },
-  { month: 5,  day: 29, label: '2 Weeks',   tagline: 'Only 2 weeks to go!'  },
-  { month: 6,  day:  5, label: '1 Week',    tagline: 'Just 1 week away!'    },
-  { month: 6,  day:  9, label: '3 Days',    tagline: '3 days and counting!' },
-  { month: 6,  day: 12, label: 'Today!',    tagline: "It's the big day!"    },
-];
+const WEDDING_DATE = { year: 2026, month: 6, day: 12 };
 
-function todayPHT() {
-  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
-  return { month: now.getMonth() + 1, day: now.getDate() };
-}
+function getReminderLabel() {
+  const now  = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const wedding = new Date(WEDDING_DATE.year, WEDDING_DATE.month - 1, WEDDING_DATE.day);
+  const diff = Math.round((wedding - today) / (1000 * 60 * 60 * 24));
 
-function getReminderForToday(force) {
-  if (force) return REMINDERS[REMINDERS.length - 1];
-  const { month, day } = todayPHT();
-  return REMINDERS.find(r => r.month === month && r.day === day) || null;
+  if (diff <= 0)  return { label: 'Today!',   tagline: "It's the big day!",       isWeddingDay: true  };
+  if (diff === 1) return { label: 'Tomorrow!', tagline: 'Just 1 day to go!',      isWeddingDay: false };
+  if (diff <= 6)  return { label: `${diff} Days`, tagline: `Only ${diff} days to go!`, isWeddingDay: false };
+  if (diff <= 13) return { label: '1 Week',    tagline: 'Just 1 week away!',      isWeddingDay: false };
+  if (diff <= 20) return { label: '2 Weeks',   tagline: 'Only 2 weeks to go!',    isWeddingDay: false };
+  return               { label: `${diff} Days`, tagline: `${diff} days until the big day!`, isWeddingDay: false };
 }
 
 function getTransporter() {
@@ -72,8 +61,7 @@ async function sendSMS(phone, message) {
   return response.json();
 }
 
-function buildReminderEmail({ guestName, reminder }) {
-  const isWeddingDay = reminder.day === 12 && reminder.month === 6;
+function buildReminderEmail({ guestName, label, tagline, isWeddingDay }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,14 +86,14 @@ function buildReminderEmail({ guestName, reminder }) {
   <div class="wrap">
     <div class="header">
       <h1>Jonathan &amp; Maribel</h1>
-      <p class="tag">${reminder.tagline}</p>
+      <p class="tag">${tagline}</p>
     </div>
     <div class="body">
       <p>Dear <strong>${guestName}</strong>,</p>
       ${isWeddingDay
         ? `<p>Today is the day! We are overjoyed that you will be with us as we begin our forever together.</p>
            <p>Please make sure to arrive on time and don't forget the dress code. We can't wait to see you!</p>`
-        : `<p>Just a friendly reminder that the wedding of <strong>Jonathan &amp; Maribel</strong> is coming up in <strong>${reminder.label}</strong>! We are so excited to celebrate this special day with you.</p>`
+        : `<p>Just a friendly reminder that the wedding of <strong>Jonathan &amp; Maribel</strong> is coming up in <strong>${label}</strong>! We are so excited to celebrate this special day with you.</p>`
       }
       <div class="detail-box">
         <p><strong>Date:</strong> June 12, 2026 (Friday)</p>
@@ -125,42 +113,28 @@ function buildReminderEmail({ guestName, reminder }) {
 </html>`;
 }
 
-function buildSmsText({ guestName, reminder }) {
-  const isWeddingDay = reminder.day === 12 && reminder.month === 6;
+function buildSmsText({ guestName, label, isWeddingDay }) {
   if (isWeddingDay) {
     return `Hi ${guestName}! Today is the big day! Jonathan & Maribel's wedding is TODAY, June 12 at Regina's Garden & Restaurant. Ceremony starts at 3:00 PM (for Immediate Family and Sponsors only). Event starts at 5:00 PM (for All Guests). We can't wait to celebrate with you!`;
   }
-  return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${reminder.label}! Date: June 12, 2026 | Ceremony Time: 3:00 PM (for Immediate Family and Sponsors only) | Event Time: 5:00 PM (for All Guests) | Venue: Regina's Garden & Restaurant. See you there!`;
+  return `Hi ${guestName}! Reminder: Jonathan & Maribel's wedding is in ${label}! Date: June 12, 2026 | Ceremony Time: 3:00 PM (for Immediate Family and Sponsors only) | Event Time: 5:00 PM (for All Guests) | Venue: Regina's Garden & Restaurant. See you there!`;
 }
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST' && req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed.' });
   }
 
-  // Auth: Vercel cron (user-agent check) OR admin session OR custom secret header
-  const isVercelCron  = req.headers['user-agent'] === 'vercel-cron/1.0';
-  const cronSecret    = req.headers['x-reminder-secret'];
-  const isValidSecret = cronSecret && cronSecret === process.env.REMINDER_SECRET;
-  const session       = getSessionFromRequest(req);
-
-  if (!isVercelCron && !isValidSecret && !session) {
+  // Auth: admin session only
+  const session = getSessionFromRequest(req);
+  if (!session) {
     return res.status(401).json({ success: false, message: 'Unauthorized.' });
   }
 
-  const force    = req.query?.force === 'true' || req.body?.force === true;
-  const reminder = getReminderForToday(force);
-
-  if (!reminder) {
-    return res.status(200).json({
-      success: true,
-      message: 'No reminder scheduled for today.',
-      today: todayPHT(),
-    });
-  }
+  const { label, tagline, isWeddingDay } = getReminderLabel();
 
   const { data: guests, error } = await supabase
     .from('rsvp')
@@ -189,8 +163,8 @@ export default async function handler(req, res) {
         await transporter.sendMail({
           from: `"Jonathan & Maribel Wedding" <${process.env.GMAIL_USER}>`,
           to: rsvp.email,
-          subject: `Wedding Reminder - ${reminder.label} to Go! | Jonathan & Maribel`,
-          html: buildReminderEmail({ guestName, reminder }),
+          subject: `Wedding Reminder — ${label} | Jonathan & Maribel`,
+          html: buildReminderEmail({ guestName, label, tagline, isWeddingDay }),
         });
         summary.emailSent++;
       } catch (err) {
@@ -201,7 +175,7 @@ export default async function handler(req, res) {
 
     if (rsvp.phone) {
       try {
-        await sendSMS(rsvp.phone, buildSmsText({ guestName, reminder }));
+        await sendSMS(rsvp.phone, buildSmsText({ guestName, label, isWeddingDay }));
         summary.smsSent++;
       } catch (err) {
         console.error(`SMS failed for rsvp ${rsvp.id}:`, err.message);
@@ -212,7 +186,7 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     success: true,
-    reminder: reminder.label,
+    reminder: label,
     summary,
     message: `Reminders sent. Emails: ${summary.emailSent} ok / ${summary.emailFailed} failed. SMS: ${summary.smsSent} ok / ${summary.smsFailed} failed.`,
   });

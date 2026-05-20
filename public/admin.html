@@ -122,7 +122,7 @@
             <option value="3">3+ Guests</option>
           </select>
           <button class="btn-export" onclick="exportToCSV()"><i class="fa-solid fa-file-excel"></i> Export</button>
-          <button class="btn-export" id="btn-send-reminders" onclick="sendReminders()" style="background:#7d8e56;color:#fff;border:none" title="Send today's scheduled reminder to all guests">&#128232; Send Reminders</button>
+          <button class="btn-export" id="btn-send-reminders" onclick="sendReminders()" style="background:#7d8e56;color:#fff;border:none" title="Send a reminder to all attending guests">&#128232; Send Reminders</button>
         </div>
       </div>
       <div class="table-wrap">
@@ -197,6 +197,7 @@ fetch('/api/auth_check').then(r => r.json()).then(d => {
   if (!d.authenticated) { window.location.href = 'login.html'; return; }
   document.getElementById('admin-username').textContent = d.username;
   loadDashboard();
+  applyReminderButtonState();
 }).catch(() => window.location.href = 'login.html');
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -641,25 +642,73 @@ async function doRemove() {
 }
 
 // ── Send Wedding Reminders ────────────────────────────────────────────────────
-async function sendReminders(force = false) {
-  const msg = force
-    ? 'Send TEST reminder to all attending guests now? (bypasses date check)'
-    : 'Send today\'s wedding reminder to all attending guests?';
-  if (!confirm(msg)) return;
+
+function todayPHTString() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+}
+
+function unlockTimeFor(lockedDateStr) {
+  const [y, m, d] = lockedDateStr.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + 1, 23, 0, 0)); // 7:00 AM PHT next day
+}
+
+function getReminderLock() {
+  try { return JSON.parse(localStorage.getItem('reminder_lock') || 'null'); } catch { return null; }
+}
+function setReminderLock(dateStr) {
+  localStorage.setItem('reminder_lock', JSON.stringify({ date: dateStr, lockedAt: Date.now() }));
+}
+function clearReminderLock() { localStorage.removeItem('reminder_lock'); }
+
+function isReminderLocked() {
+  const lock = getReminderLock();
+  if (!lock) return false;
+  if (lock.date !== todayPHTString()) { clearReminderLock(); return false; }
+  if (Date.now() >= unlockTimeFor(lock.date).getTime()) { clearReminderLock(); return false; }
+  return true;
+}
+
+function applyReminderButtonState() {
+  const btn = document.getElementById('btn-send-reminders');
+  if (!btn) return;
+  if (isReminderLocked()) {
+    btn.disabled = true;
+    btn.title = 'Reminders already sent today. Unlocks at 7:00 AM tomorrow.';
+    btn.innerHTML = '🔒 Reminders Sent';
+    btn.style.background = '#aaa';
+    btn.style.cursor = 'not-allowed';
+  } else {
+    btn.disabled = false;
+    btn.title = 'Send a reminder to all attending guests';
+    btn.innerHTML = '📨 Send Reminders';
+    btn.style.background = '#7d8e56';
+    btn.style.cursor = 'pointer';
+  }
+}
+
+async function sendReminders() {
+  if (isReminderLocked()) {
+    showResultModal({ success: false, title: 'Already Sent', body: 'Reminders were already sent today. The button will unlock at 7:00 AM tomorrow.' });
+    return;
+  }
+
+  if (!confirm('Send a wedding reminder to all attending guests now?')) return;
 
   const btn = document.getElementById('btn-send-reminders');
-  if (btn) { btn.disabled = true; btn.textContent = '…Sending'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Sending…'; btn.style.background = '#aaa'; }
 
   try {
-    const res = await fetch('/api/reminders' + (force ? '?force=true' : ''), {
+    const res = await fetch('/api/reminders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
     const data = await res.json();
     if (data.summary) {
       const s = data.summary;
+      const allOk = s.emailFailed === 0 && s.smsFailed === 0;
+      if (allOk) setReminderLock(todayPHTString());
       showResultModal({
-        success: s.emailFailed === 0 && s.smsFailed === 0,
+        success: allOk,
         title: 'Reminders Sent!',
         body: `<div style="margin-top:4px">📧 Emails: <strong>${s.emailSent}</strong> sent, ${s.emailFailed} failed</div>
                <div style="margin-top:4px">💬 SMS: <strong>${s.smsSent}</strong> sent, ${s.smsFailed} failed</div>`
@@ -670,7 +719,7 @@ async function sendReminders(force = false) {
   } catch (err) {
     showResultModal({ success: false, title: 'Error', body: escHtml(err.message) });
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '📨 Send Reminders'; }
+    applyReminderButtonState();
   }
 }
 
