@@ -784,7 +784,7 @@
       <div class="rsvp-left">
         <span class="script">Dear you,</span>
         <p>you've been such an important part of our lives, it wouldn't feel right to start this new chapter without you by our side. Please take a moment to RSVP so we can prepare for your presence.</p>
-        <p class="deadline">Kindly respond on or before May 30, 2026</p>
+        <p class="deadline">Kindly respond on or before June 1, 2026</p>
       </div>
       <div class="rsvp-right">
         <h3>RSVP</h3>
@@ -983,15 +983,15 @@ function renderRSVPAlreadySubmitted(attending) {
 }
 
 function renderRSVPForm(c) {
-  const rsvpDeadline = new Date('2026-05-30T23:59:59+08:00');
+  const rsvpDeadline = new Date('2026-06-01T23:59:59+08:00');
   if (new Date() > rsvpDeadline) {
-    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (May 30, 2026) has passed.<br>Please reach out to Jonathan & Maribel directly.</p></div></div>`;
+    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (June 1, 2026) has passed.<br>Please reach out to Jonathan & Maribel directly.</p></div></div>`;
   }
 }
 
 (function initRSVPCheck() {
   const c = document.getElementById('rsvp-container');
-  const rsvpDeadline = new Date('2026-05-30T23:59:59+08:00');
+  const rsvpDeadline = new Date('2026-06-01T23:59:59+08:00');
   const deadlinePassed = new Date() > rsvpDeadline;
 
   // 1. Check localStorage — the ONLY same-device gate.
@@ -1009,7 +1009,7 @@ function renderRSVPForm(c) {
 
   // 2. Deadline passed — hide the form
   if (deadlinePassed) {
-    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (May 30, 2026) has passed.<br>Please reach out to Jonathan & Maribel directly.</p></div></div>`;
+    c.innerHTML = `<div class="rsvp-card"><div style="padding:60px 40px;grid-column:span 2;text-align:center"><i class="fa-solid fa-calendar-xmark" style="font-size:3.5rem;color:rgba(184,208,227,.6);display:block;margin-bottom:20px"></i><h3 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;color:#f8f5ec">RSVP Closed</h3><p style="color:rgba(184,208,227,.65);font-size:.9rem;line-height:1.7">The RSVP deadline (June 1, 2026) has passed.<br>Please reach out to Jonathan & Maribel directly.</p></div></div>`;
     return;
   }
 
@@ -1068,9 +1068,9 @@ function submitNoRSVP() {
 let rsvpSubmitting = false;
 function submitRSVP() {
   if (rsvpSubmitting) return;
-  const deadline = new Date('2026-05-30T23:59:59+08:00');
+  const deadline = new Date('2026-06-01T23:59:59+08:00');
   if (new Date() > deadline) {
-    alert('We\'re sorry — the RSVP deadline has passed (May 30, 2026). Please contact the couple directly.');
+    alert('We\'re sorry — the RSVP deadline has passed (June 1, 2026). Please contact the couple directly.');
     return;
   }
   const num = parseInt(document.getElementById('num-guests')?.value) || 0;
